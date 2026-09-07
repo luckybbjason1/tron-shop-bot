@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>TRON 쇼핑몰</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding: 16px;
+        }
+        .header { text-align: center; padding: 20px 0; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 20px; }
+        .header h1 { font-size: 24px; background: linear-gradient(90deg, #00d4ff, #7c3aed); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .product-card { background: rgba(255,255,255,0.05); border-radius: 16px; padding: 20px; margin-bottom: 16px; border: 1px solid rgba(255,255,255,0.1); }
+        .product-icon { font-size: 48px; text-align: center; margin-bottom: 12px; }
+        .product-name { font-size: 18px; font-weight: 600; text-align: center; margin-bottom: 8px; }
+        .product-desc { font-size: 14px; color: #94a3b8; text-align: center; margin-bottom: 16px; }
+        .price-box { background: rgba(0,212,255,0.1); border-radius: 12px; padding: 16px; text-align: center; margin-bottom: 16px; }
+        .price-main { font-size: 24px; font-weight: bold; color: #00d4ff; }
+        .price-alt { font-size: 14px; color: #94a3b8; margin-top: 4px; }
+        .payment-section { margin-top: 20px; }
+        .payment-title { font-size: 16px; margin-bottom: 12px; color: #e2e8f0; }
+        .payment-methods { display: flex; gap: 12px; margin-bottom: 16px; }
+        .payment-btn { flex: 1; padding: 12px; border-radius: 12px; border: 2px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: #fff; font-size: 14px; cursor: pointer; transition: all 0.3s; }
+        .payment-btn.active { border-color: #00d4ff; background: rgba(0,212,255,0.2); }
+        .wallet-section { background: rgba(0,0,0,0.3); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+        .wallet-address { display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.05); padding: 12px; border-radius: 8px; margin-bottom: 12px; }
+        .wallet-address code { flex: 1; font-size: 12px; word-break: break-all; color: #00d4ff; }
+        .copy-btn { padding: 8px 12px; background: #7c3aed; border: none; border-radius: 6px; color: #fff; font-size: 12px; cursor: pointer; }
+        .qr-placeholder { width: 120px; height: 120px; background: #fff; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center; color: #000; font-size: 12px; border-radius: 8px; }
+        .checkout-btn { width: 100%; padding: 16px; background: linear-gradient(90deg, #00d4ff, #7c3aed); border: none; border-radius: 12px; color: #fff; font-size: 16px; font-weight: 600; cursor: pointer; transition: transform 0.2s; }
+        .checkout-btn:active { transform: scale(0.98); }
+        .checkout-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .status-box { background: rgba(0,0,0,0.3); border-radius: 12px; padding: 16px; margin-top: 16px; text-align: center; display: none; }
+        .status-box.success { background: rgba(34,197,94,0.2); border: 1px solid #22c55e; }
+        .status-box.pending { background: rgba(234,179,8,0.2); border: 1px solid #eab308; }
+        .status-text { font-size: 14px; margin-top: 8px; }
+        .timer { font-size: 12px; color: #94a3b8; margin-top: 8px; }
+        .tx-link { color: #00d4ff; text-decoration: underline; font-size: 12px; margin-top: 8px; display: block; }
+    </style>
+</head>
+<body>
+    <div class="header"><h1>🛒 TRON 쇼핑몰</h1></div>
+    
+    <div class="product-card" id="productInfo">
+        <div class="product-icon" id="productIcon">📱</div>
+        <div class="product-name" id="productName">로딩 중...</div>
+        <div class="product-desc" id="productDesc"></div>
+        
+        <div class="price-box">
+            <div class="price-main" id="priceMain">0 TRX</div>
+            <div class="price-alt" id="priceAlt">또는 $0 USDT</div>
+        </div>
+        
+        <div class="payment-section">
+            <div class="payment-title">결제 수단 선택</div>
+            <div class="payment-methods">
+                <button class="payment-btn active" data-method="trx" onclick="selectPayment('trx')">💎 TRX</button>
+                <button class="payment-btn" data-method="usdt" onclick="selectPayment('usdt')">💵 USDT (TRC20)</button>
+            </div>
+            
+            <div class="wallet-section">
+                <div class="wallet-address">
+                    <code id="walletAddress">TWk75rL7Y7yS2eLZhLEpA7UeVVWpTJTih4</code>
+                    <button class="copy-btn" onclick="copyAddress()">복사</button>
+                </div>
+                <div class="qr-placeholder">QR Code</div>
+                <div class="timer" id="timer">결제 유효시간: 15:00</div>
+            </div>
+            
+            <button class="checkout-btn" id="checkoutBtn" onclick="processPayment()">결제하기</button>
+        </div>
+        
+        <div class="status-box" id="statusBox">
+            <div class="status-text" id="statusText">결제 대기 중...</div>
+            <a class="tx-link" id="txLink" href="#" target="_blank"></a>
+        </div>
+    </div>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+        
+        let currentProduct = null;
+        let currentPayment = 'trx';
+        let orderId = null;
+        let countdownTimer = null;
+        
+        const products = {
+            1: { name: "일반 텔레그램 계정", icon: "📱", priceTrx: 50, priceUsdt: 10, desc: "생성일 1년 이상, 전화번호 검증 완료 계정" },
+            2: { name: "프리미엄 텔레그램 계정", icon: "⭐", priceTrx: 150, priceUsdt: 30, desc: "생성일 3년 이상, 고급 프로필, 검증 완료" },
+            3: { name: "텔레그램 채널 계정", icon: "📢", priceTrx: 80, priceUsdt: 15, desc: "가입자 1000명 이상 채널 소유 계정" },
+            4: { name: "인스타그램 계정", icon: "📷", priceTrx: 100, priceUsdt: 20, desc: "팔로워 5000명 이상, 활동적인 계정" },
+            5: { name: "인스타그램 프리미엄", icon: "💎", priceTrx: 200, priceUsdt: 40, desc: "팔로워 2만 명 이상, 업계 인증 계정" },
+            6: { name: "페이스북 계정", icon: "📘", priceTrx: 60, priceUsdt: 12, desc: "실명 프로필, 친구 1000명 이상" },
+            7: { name: "페이스북 비즈니스 계정", icon: "🏢", priceTrx: 120, priceUsdt: 24, desc: "비즈니스 인증, 광고주 계정" }
+        };
+        
+        const paymentAddress = "TWk75rL7Y7yS2eLZhLEpA7UeVVWpTJTih4";
+        
+        function getProductFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('product');
+        }
+        
+        function init() {
+            const productId = getProductFromURL();
+            if (productId && products[productId]) {
+                currentProduct = products[productId];
+                displayProduct();
+                generateOrderId();
+                startCountdown();
+            } else {
+                document.getElementById('productName').textContent = "상품을 찾을 수 없습니다";
+            }
+        }
+        
+        function displayProduct() {
+            document.getElementById('productIcon').textContent = currentProduct.icon;
+            document.getElementById('productName').textContent = currentProduct.name;
+            document.getElementById('productDesc').textContent = currentProduct.desc;
+            document.getElementById('priceMain').textContent = `${currentProduct.priceTrx} TRX`;
+            document.getElementById('priceAlt').textContent = `또는 $${currentProduct.priceUsdt} USDT`;
+            document.getElementById('walletAddress').textContent = paymentAddress;
+        }
+        
+        function selectPayment(method) {
+            currentPayment = method;
+            document.querySelectorAll('.payment-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.method === method);
+            });
+            if (method === 'trx') {
+                document.getElementById('priceMain').textContent = `${currentProduct.priceTrx} TRX`;
+                document.getElementById('priceAlt').textContent = `또는 $${currentProduct.priceUsdt} USDT`;
+            } else {
+                document.getElementById('priceMain').textContent = `$${currentProduct.priceUsdt} USDT`;
+                document.getElementById('priceAlt').textContent = `또는 ${currentProduct.priceTrx} TRX`;
+            }
+        }
+        
+        function generateOrderId() {
+            orderId = 'ORD' + Date.now() + Math.random().toString(36).substr(2, 6).toUpperCase();
+            console.log('Order ID:', orderId);
+        }
+        
+        function startCountdown() {
+            let timeLeft = 900;
+            const timerEl = document.getElementById('timer');
+            countdownTimer = setInterval(() => {
+                timeLeft--;
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                timerEl.textContent = `결제 유효시간: ${minutes}:${seconds.toString().padStart(2, '0')}`;
+                if (timeLeft <= 0) {
+                    clearInterval(countdownTimer);
+                    timerEl.textContent = "결제 시간이 만료되었습니다";
+                    document.getElementById('checkoutBtn').disabled = true;
+                }
+            }, 1000);
+        }
+        
+        function copyAddress() {
+            navigator.clipboard.writeText(paymentAddress).then(() => {
+                tg.showPopup({ title: "복사 완료", message: "지갑 주소가 클립보드에 복사되었습니다.", buttons: [{type: "ok"}] });
+            });
+        }
+        
+        async function processPayment() {
+            const btn = document.getElementById('checkoutBtn');
+            btn.disabled = true;
+            btn.textContent = "결제 처리 중...";
+            
+            const data = {
+                orderId: orderId,
+                productId: Object.keys(products).find(key => products[key] === currentProduct),
+                paymentMethod: currentPayment,
+                amount: currentPayment === 'trx' ? currentProduct.priceTrx : currentProduct.priceUsdt,
+                currency: currentPayment.toUpperCase(),
+                paymentAddress: paymentAddress,
+                timestamp: Date.now()
+            };
+            
+            try {
+                tg.sendData(JSON.stringify(data));
+                showStatus('pending', '결제 대기 중... TRX 또는 USDT를 아래 주소로 전송해주세요.');
+            } catch (error) {
+                showStatus('error', '결제 처리 중 오류가 발생했습니다.');
+                btn.disabled = false;
+                btn.textContent = '결제하기';
+            }
+        }
+        
+        function showStatus(type, message, txHash = null) {
+            const statusBox = document.getElementById('statusBox');
+            const statusText = document.getElementById('statusText');
+            const txLink = document.getElementById('txLink');
+            
+            statusBox.style.display = 'block';
+            statusBox.className = 'status-box ' + type;
+            statusText.textContent = message;
+            
+            if (txHash) {
+                txLink.href = `https://tronscan.org/#/transaction/${txHash}`;
+                txLink.textContent = '트랜잭션 확인';
+                txLink.style.display = 'block';
+            } else {
+                txLink.style.display = 'none';
+            }
+        }
+        
+        init();
+    </script>
+</body>
+</html>
