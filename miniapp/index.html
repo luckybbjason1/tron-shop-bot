@@ -69,7 +69,7 @@ function getParam(name){const p=new URLSearchParams(location.search);return p.ge
 
 async function loadProducts(){
   try{
-    const r=await fetch('/api/products');
+    const r=await fetch('https://951951.org/api/products');
     const data=await r.json();
     const pid=getParam('product');
     if(pid){
@@ -126,7 +126,7 @@ async function doPay(){
   const btn=document.getElementById('payBtn');
   btn.disabled=true;btn.textContent='결제 처리 중...';
   const amount=method==='trx'?cur.price_trx:cur.price_usdt;
-  const order=await fetch('/api/payment/create',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:tg.initDataUnsafe?.user?.id,product_id:cur.id,amount,currency:method.toUpperCase()})}).then(r=>r.json());
+  const order=await fetch('https://951951.org/api/payment/create',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:tg.initDataUnsafe?.user?.id,product_id:cur.id,amount,currency:method.toUpperCase()})}).then(r=>r.json());
   orderId=order.order_id;
   showStatus('pending','결제 대기 중...\n아래 주소로 '+amount+' '+method.toUpperCase()+'을(를) 전송하세요.');
   tg.sendData(JSON.stringify({orderId,amount,currency:method.toUpperCase(),paymentAddress:'TWk75rL7Y7yS2eLZhLEpA7UeVVWpTJTih4'}));

@@ -1,8 +1,4 @@
-/**
- * Cloudflare Workers API for TRON Shop
- * 替代 Python Flask，部署到 Cloudflare Workers
- */
-
+// Cloudflare Workers API for TRON Shop
 const PRODUCTS = [
   { id: 1, name: "一般 텔레그램 계정", price_trx: 50, price_usdt: 10, stock: 50, icon: "📱", desc: "생성일 1년 이상, 전화번호 검증 완료 계정" },
   { id: 2, name: "프리미엄 텔레그램 계정", price_trx: 150, price_usdt: 30, stock: 20, icon: "⭐", desc: "생성일 3년 이상, 고급 프로필, 검증 완료" },
@@ -15,9 +11,7 @@ const PRODUCTS = [
 
 const ADMIN_IDS = [8427378474, 8733970362];
 const PAYMENT_ADDRESS = "TWk75rL7Y7yS2eLZhLEpA7UeVVWpTJTih4";
-
-// 内存存储订单 (Cloudflare Workers 无持久化存储)
-const orders = new Map();
+const orders = {};
 
 function json(response, status = 200) {
   return new Response(JSON.stringify(response), {
@@ -31,26 +25,26 @@ function json(response, status = 200) {
   });
 }
 
+addEventListener("fetch", event => {
+  event.respondWith(handleRequest(event.request));
+});
+
 async function handleRequest(request) {
   const url = new URL(request.url);
   const path = url.pathname;
-  
-  // CORS preflight
+
   if (request.method === "OPTIONS") {
     return json({});
   }
-  
-  // Health check
+
   if (path === "/api/health") {
     return json({ status: "ok", timestamp: new Date().toISOString() });
   }
-  
-  // Products
+
   if (path === "/api/products") {
     return json({ products: PRODUCTS });
   }
-  
-  // Create payment
+
   if (path === "/api/payment/create" && request.method === "POST") {
     const data = await request.json();
     const orderId = "ORD" + Date.now() + Math.random().toString(36).substr(2, 6).toUpperCase();
@@ -65,33 +59,30 @@ async function handleRequest(request) {
       created_at: new Date().toISOString(),
       expires_at: new Date(Date.now() + 15 * 60 * 1000).toISOString()
     };
-    orders.set(orderId, order);
+    orders[orderId] = order;
     return json(order);
   }
-  
-  // Get order
+
   if (path.startsWith("/api/order/")) {
     const orderId = path.split("/").pop();
-    const order = orders.get(orderId);
+    const order = orders[orderId];
     if (order) {
       return json(order);
     }
     return json({ error: "Not found" }, 404);
   }
-  
-  // Admin orders
+
   if (path === "/api/admin/orders" && request.method === "GET") {
     const userId = parseInt(request.headers.get("X-User-Id") || "0");
     if (!ADMIN_IDS.includes(userId)) {
       return json({ error: "Forbidden" }, 403);
     }
-    return json({ orders: Array.from(orders.values()) });
+    return json({ orders: Object.values(orders) });
   }
-  
-  // Verify payment
+
   if (path === "/api/payment/verify" && request.method === "POST") {
     const data = await request.json();
-    const order = orders.get(data.order_id);
+    const order = orders[data.order_id];
     if (order) {
       order.status = "paid";
       order.transaction_hash = data.transaction_hash;
@@ -100,16 +91,6 @@ async function handleRequest(request) {
     }
     return json({ error: "Not found" }, 404);
   }
-  
+
   return json({ error: "Not found" }, 404);
 }
-
-export default {
-  async fetch(request) {
-    try {
-      return await handleRequest(request);
-    } catch (error) {
-      return json({ error: error.message }, 500);
-    }
-  }
-};
