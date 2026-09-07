@@ -14,7 +14,8 @@ import base64
 from datetime import datetime
 from dotenv import load_dotenv
 from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo, BotCommand, WebAppData
-from telegram.ext import Application, CommandHandler, CallbackQueryHandler, WebAppHandler, ContextTypes
+from telegram.ext import Application, CommandHandler, CallbackQueryHandler, MessageHandler, ContextTypes
+from telegram import filters
 from telegram.error import TelegramError, Conflict
 
 # 导入支付验证器
@@ -815,7 +816,7 @@ def main():
     app.add_handler(CommandHandler("orders", orders))
     app.add_handler(CommandHandler("stats", stats))
     app.add_handler(CallbackQueryHandler(handle_callback))
-    app.add_handler(WebAppHandler(handle_webapp_data))
+    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_webapp_data))
     app.add_error_handler(error_handler)
     
     # 注册命令
