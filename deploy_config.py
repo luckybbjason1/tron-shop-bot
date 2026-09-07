@@ -11,7 +11,7 @@ config = {
         "directory": "api"
     },
     "env": {
-        "BOT_TOKEN": "8979245044:AAEEL7N4l8T2ovFgNe3JuKDywHUnbuTVMac",
+        "BOT_TOKEN": "8979245044:AAFPB55Qd5TRWZncE2G9_Td7kb3f_UyhR3c",
         "TRON_NETWORK": "mainnet",
         "TRON_WALLET_ADDRESS": "TWk75rL7Y7yS2eLZhLEpA7UeVVWpTJTih4",
         "USDT_CONTRACT_ADDRESS": "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t",
