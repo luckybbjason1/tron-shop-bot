@@ -39,6 +39,52 @@ def is_admin(user_id: int) -> bool:
 
 
 def api_request(path: str, method: str = "GET", data: dict = None) -> dict:
+    # 直接读取 GitHub 数据（绕过 Worker API）
+    if path == "/api/products":
+        try:
+            import urllib.request
+            url = "https://raw.githubusercontent.com/luckybbjason1/tron-shop-bot/main/data/accounts.json"
+            req = urllib.request.Request(url)
+            with urllib.request.urlopen(req, timeout=10) as resp:
+                accounts_data = json.loads(resp.read())
+                accounts = accounts_data.get('accounts', [])
+                products = []
+                for acc in accounts:
+                    if acc.get('status') == 'available':
+                        acc_type = acc.get('type', 'telegram_basic')
+                        price = BASE_PRICES.get(acc_type, BASE_PRICES['telegram_basic'])
+                        products.append({
+                            'id': acc.get('id', ''),
+                            'type': acc_type,
+                            'name': price.get('name', acc_type),
+                            'phone': acc.get('phone', ''),
+                            'verify_link': acc.get('verify_link', ''),
+                            'username': acc.get('username', ''),
+                            'price_trx': price.get('trx', 50),
+                            'price_usdt': price.get('usdt', 10)
+                        })
+                return {'products': products, 'total': len(products), 'available': len(products)}
+        except Exception as e:
+            logger.warning(f"读取 GitHub 数据失败: {e}")
+            return {'products': [], 'total': 0}
+    
+    # Admin API (仅用于添加账号)
+    if path.startswith("/api/admin/"):
+        url = f"{API_BASE}{path}"
+        try:
+            req = urllib.request.Request(url, method=method)
+            req.add_header("X-User-Id", str(next((uid for uid in ADMIN_IDS), "")))
+            if data:
+                body = json.dumps(data).encode()
+                req.add_header("Content-Type", "application/json")
+                req.data = body
+            with urllib.request.urlopen(req, timeout=10) as resp:
+                return json.loads(resp.read())
+        except Exception as e:
+            logger.warning(f"API请求失败 {path}: {e}")
+            return {}
+    
+    # 其他 API 请求
     url = f"{API_BASE}{path}"
     try:
         req = urllib.request.Request(url, method=method)
