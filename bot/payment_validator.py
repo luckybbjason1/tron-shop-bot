@@ -31,7 +31,7 @@ class TronPaymentValidator:
     API_RATE_LIMIT = 10  # 每秒最大请求数
     API_COOLDOWN = 0.1   # 请求间隔（秒）
     
-    def __init__(self, db_path: str = "data/payments.db"):
+    def __init__(self, db_path: str = "/data/data/com.termux/files/home/tg-shop-bot/data/payments.db"):
         self.wallet_address = os.getenv("TRON_WALLET_ADDRESS", "")
         self.api_key = os.getenv("TRON_GRID_API_KEY", "")
         self.tronscan_key = os.getenv("TRONSCAN_API_KEY", "")

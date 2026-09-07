@@ -119,7 +119,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user
     if not user or not user.id:
         return
-    
+
     # 检查是否为群组
     if update.effective_chat and update.effective_chat.type != 'private':
         await update.message.reply_text(
@@ -127,7 +127,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
             "이 봇을 추가하지 마세요."
         )
         return
-    
+
     if is_admin(user.id):
         keyboard = [
             [InlineKeyboardButton("📥 계정 업로드", callback_data="admin_add_account")],
@@ -142,12 +142,51 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
             reply_markup=InlineKeyboardMarkup(keyboard)
         )
     else:
+        welcome_text = """🛒 텔레그램 계정 구매 쇼핑몰에 오신 것을 환영합니다!
+
+{first_name}님, 안전한 텔레그램 계정을 구매하세요.
+
+📋 구매 방법:
+
+1️⃣ 계정 선택
+   • '📱 텔레그램 계정' 버튼을 클릭하세요
+   • 원하는 국가의 계정을 선택하세요
+
+2️⃣ 수량 선택
+   • 구매할 계정 수량을 선택하세요 (1~3개)
+   • 가격은 실시간으로 계산됩니다
+
+3️⃣ 결제 정보 확인
+   • 총 결제 금액을 확인하세요
+   • TRON 지갑 주소를 확인하세요
+
+4️⃣ 블록체인 결제
+   • USDT(TRC20) 또는 TRX로 결제하세요
+   • 결제 주소: TWk75rL7Y7yS2eLZhLEpA7UeVVWpTJTih4
+   • 결제 기한: 30분
+
+5️⃣ 계정 수령
+   • 결제 확인 후 자동으로 계정을 발송합니다
+   • 텔레그램 계정 정보 (전화번호 + 인증 링크)를 받으세요
+
+💰 가격 정보:
+   • 텔레그램 계정: 5 USDT / 개
+   • 수량에 따라 가격 변동 (1.001x ~ 1.03x)
+
+⚠️ 주의사항:
+   • 인증 코드는 30분 동안 유효합니다
+   • 결제는 30분 이내에 완료해주세요
+   • 환불은 불가능합니다
+   • 계정 정보는 결제 확인 후 발송됩니다
+
+🔒 안전하고 빠른 구매 경험을 보장합니다!
+""".format(first_name=sanitize_input(user.first_name))
+
         keyboard = [
             [InlineKeyboardButton("📱 텔레그램 계정", callback_data="category_telegram")]
         ]
         await update.message.reply_text(
-            f"🛒 TRON 쇼핑몰에 오신 것을 환영합니다!\n\n"
-            f"{sanitize_input(user.first_name)}님, 구매할 카테고리를 선택하세요.",
+            welcome_text,
             reply_markup=InlineKeyboardMarkup(keyboard)
         )
 
@@ -390,42 +429,45 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             acc_id = data.split("_", 2)[2]
             accounts = get_bot_data()
             account = next((a for a in accounts if a.get('id') == acc_id), None)
-            
+
             if not account:
                 await query.answer("계정을 찾을 수 없습니다.", show_alert=True)
                 return
-            
+
             # 检查账号是否仍可用
             if account.get('status') != 'available':
                 await query.answer("❌ 이 계정은 이미 판매되었습니다.", show_alert=True)
                 return
-            
+
             phone = account.get('phone', '')
             link = account.get('verify_link', '')
             username = account.get('username', '')
             price_trx = account.get('price_trx', 50)
             price_usdt = account.get('price_usdt', 10)
             acc_type = account.get('type', 'telegram_basic')
-            
+
             context.user_data['selected_account'] = account
             context.user_data['selected_type'] = acc_type
             context.user_data['quantity'] = 1
             context.user_data['trx_price'] = price_trx
             context.user_data['usdt_price'] = price_usdt
-            
-            text = f"📱 {account.get('name', acc_type)}\n\n"
-            text += f"📞 전화번호: {phone}\n"
-            if username:
-                text += f"👤 사용자명: @{username}\n"
-            text += f"💰 가격: {price_trx} TRX / ${price_usdt} USDT\n\n"
-            
-            if link:
-                text += f"🔗 인증 링크: {link}\n\n"
-                text += "위 링크를 클릭하여 인증 코드를 받으세요.\n"
-            
-            text += "계속 구매하시겠습니까?"
-            
+
+            text = f"""📱 {account.get('name', acc_type)}
+
+📞 전화번호: {phone}
+👤 사용자명: @{username if username else '없음'}
+💰 가격: {price_trx} TRX / ${price_usdt} USDT
+🔗 인증 링크: {link if link else '아직 생성되지 않음'}
+
+📋 다음 단계:
+1️⃣ 아래 버튼을 클릭하여 인증 링크를 엽니다
+2️⃣ 텔레그램 앱에서 인증 코드를 받습니다
+3️⃣ 인증 완료 후 결제를 진행합니다
+
+계속 구매하시겠습니까?"""
+
             keyboard = [
+                [InlineKeyboardButton("🔗 인증 링크 열기", url=link) if link else InlineKeyboardButton("⚠️ 인증 링크 없음", callback_data="back")],
                 [InlineKeyboardButton("✅ 구매하기", callback_data=f"pay_{acc_type}_trx")],
                 [InlineKeyboardButton("⬅️ 뒤로가기", callback_data="back")]
             ]
