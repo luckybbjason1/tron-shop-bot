@@ -7,1693 +7,263 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
         
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
         :root {
-            --neon-cyan: #00f3ff;
-            --neon-pink: #ff00ff;
-            --neon-purple: #b026ff;
-            --neon-green: #00ff88;
-            --neon-orange: #ff6b35;
-            --neon-yellow: #ffe600;
-            --dark-bg: #050508;
-            --card-bg: rgba(5, 5, 15, 0.9);
-            --glass: rgba(255, 255, 255, 0.02);
-            --text-primary: #ffffff;
-            --text-secondary: rgba(255, 255, 255, 0.5);
+            --neon-cyan: #00f3ff; --neon-pink: #ff00ff; --neon-purple: #b026ff;
+            --neon-green: #00ff88; --neon-orange: #ff6b35; --neon-yellow: #ffe600;
+            --dark-bg: #050508; --text-primary: #ffffff; --text-secondary: rgba(255, 255, 255, 0.5);
         }
-
-        body {
-            font-family: 'Noto Sans KR', 'Rajdhani', sans-serif;
-            background: var(--dark-bg);
-            color: var(--text-primary);
-            min-height: 100vh;
-            overflow-x: hidden;
-            position: relative;
-        }
-
-        /* 动态网格背景 */
-        .cyber-grid {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: 
-                linear-gradient(rgba(0, 243, 255, 0.08) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 243, 255, 0.08) 1px, transparent 1px);
-            background-size: 40px 40px;
-            pointer-events: none;
-            z-index: 0;
-            animation: grid-move 20s linear infinite;
-        }
-
-        @keyframes grid-move {
-            0% { transform: perspective(500px) rotateX(60deg) translateY(0); }
-            100% { transform: perspective(500px) rotateX(60deg) translateY(40px); }
-        }
-
-        /* 数据流背景 */
-        .data-stream {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 1;
-            overflow: hidden;
-        }
-
-        .data-stream-col {
-            position: absolute;
-            top: -100%;
-            width: 30px;
-            text-align: center;
-            font-family: 'Orbitron', monospace;
-            font-size: 10px;
-            color: var(--neon-cyan);
-            opacity: 0.1;
-            animation: data-fall linear infinite;
-            text-shadow: 0 0 8px var(--neon-cyan);
-            line-height: 1.5;
-        }
-
-        @keyframes data-fall {
-            0% { transform: translateY(-100%); }
-            100% { transform: translateY(calc(100vh + 100%)); }
-        }
-
-        /* 脉冲背景 */
-        .pulse-bg {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 200vw;
-            height: 200vh;
-            background: radial-gradient(circle, rgba(0, 243, 255, 0.03) 0%, transparent 60%);
-            animation: pulse-expand 4s ease-out infinite;
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        @keyframes pulse-expand {
-            0% { opacity: 1; transform: translate(-50%, -50%) scale(0.8); }
-            100% { opacity: 0; transform: translate(-50%, -50%) scale(1.5); }
-        }
-
-        /* 扫描线 */
-        .scanline {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 4px;
-            background: linear-gradient(90deg, 
-                transparent, 
-                var(--neon-cyan), 
-                var(--neon-pink),
-                var(--neon-purple),
-                transparent);
-            opacity: 0.6;
-            animation: scan 2.5s linear infinite;
-            pointer-events: none;
-            z-index: 2;
-            box-shadow: 0 0 30px var(--neon-cyan), 0 0 60px var(--neon-pink);
-        }
-
-        @keyframes scan {
-            0% { top: -5%; }
-            100% { top: 105%; }
-        }
-
-        /* 浮动几何体 */
-        .floating-shapes {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 2;
-            overflow: hidden;
-        }
-
-        .shape {
-            position: absolute;
-            opacity: 0.15;
-            animation: float-shape linear infinite;
-        }
-
-        .shape.diamond {
-            width: 20px;
-            height: 20px;
-            background: var(--neon-cyan);
-            transform: rotate(45deg);
-            box-shadow: 0 0 20px var(--neon-cyan);
-        }
-
-        .shape.circle {
-            width: 15px;
-            height: 15px;
-            border: 2px solid var(--neon-pink);
-            border-radius: 50%;
-            box-shadow: 0 0 15px var(--neon-pink), inset 0 0 10px var(--neon-pink);
-        }
-
-        .shape.triangle {
-            width: 0;
-            height: 0;
-            border-left: 10px solid transparent;
-            border-right: 10px solid transparent;
-            border-bottom: 20px solid var(--neon-purple);
-            filter: drop-shadow(0 0 10px var(--neon-purple));
-        }
-
-        .shape.hexagon {
-            width: 25px;
-            height: 14px;
-            background: var(--neon-green);
-            position: absolute;
-            box-shadow: 0 0 20px var(--neon-green);
-        }
-
-        .shape.hexagon::before,
-        .shape.hexagon::after {
-            content: '';
-            position: absolute;
-            width: 0;
-            border-left: 12px solid transparent;
-            border-right: 12px solid transparent;
-        }
-
-        .shape.hexagon::before {
-            top: -7px;
-            border-bottom: 7px solid var(--neon-green);
-        }
-
-        .shape.hexagon::after {
-            bottom: -7px;
-            border-top: 7px solid var(--neon-green);
-        }
-
-        @keyframes float-shape {
-            0% {
-                transform: translateY(110vh) rotate(0deg);
-                opacity: 0;
-            }
-            10% { opacity: 0.15; }
-            90% { opacity: 0.15; }
-            100% {
-                transform: translateY(-10vh) rotate(360deg);
-                opacity: 0;
-            }
-        }
-
-        /* 主容器 */
-        .app-container {
-            position: relative;
-            z-index: 10;
-            max-width: 480px;
-            margin: 0 auto;
-            padding: 20px 16px;
-            min-height: 100vh;
-        }
-
-        /* 全息标题 */
-        .holo-header {
-            text-align: center;
-            padding: 40px 0;
-            position: relative;
-        }
-
-        .holo-title {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 32px;
-            font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: 6px;
-            background: linear-gradient(90deg, 
-                var(--neon-cyan), 
-                var(--neon-pink), 
-                var(--neon-purple),
-                var(--neon-cyan));
-            background-size: 300% 100%;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            animation: holo-shimmer 3s linear infinite;
-            position: relative;
-            text-shadow: 0 0 40px rgba(0, 243, 255, 0.5);
-        }
-
-        @keyframes holo-shimmer {
-            0% { background-position: 0% 50%; }
-            100% { background-position: 300% 50%; }
-        }
-
-        .holo-subtitle {
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 13px;
-            color: var(--text-secondary);
-            letter-spacing: 10px;
-            margin-top: 10px;
-            text-transform: uppercase;
-            animation: subtitle-flicker 3s ease-in-out infinite;
-        }
-
-        @keyframes subtitle-flicker {
-            0%, 100% { opacity: 0.6; }
-            50% { opacity: 1; }
-        }
-
-        /* 故障效果 */
-        .glitch {
-            position: relative;
-        }
-
-        .glitch::before,
-        .glitch::after {
-            content: attr(data-text);
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-        }
-
-        .glitch::before {
-            left: 2px;
-            text-shadow: -2px 0 var(--neon-pink);
-            clip: rect(24px, 550px, 90px, 0);
-            animation: glitch-anim 3s infinite linear alternate-reverse;
-        }
-
-        .glitch::after {
-            left: -2px;
-            text-shadow: -2px 0 var(--neon-cyan);
-            clip: rect(85px, 550px, 140px, 0);
-            animation: glitch-anim2 2.5s infinite linear alternate-reverse;
-        }
-
-        @keyframes glitch-anim {
-            0% { clip: rect(10px, 9999px, 85px, 0); }
-            20% { clip: rect(63px, 9999px, 130px, 0); }
-            40% { clip: rect(25px, 9999px, 15px, 0); }
-            60% { clip: rect(88px, 9999px, 95px, 0); }
-            80% { clip: rect(45px, 9999px, 60px, 0); }
-            100% { clip: rect(15px, 9999px, 110px, 0); }
-        }
-
-        @keyframes glitch-anim2 {
-            0% { clip: rect(65px, 9999px, 99px, 0); }
-            20% { clip: rect(15px, 9999px, 45px, 0); }
-            40% { clip: rect(85px, 9999px, 120px, 0); }
-            60% { clip: rect(35px, 9999px, 75px, 0); }
-            80% { clip: rect(95px, 9999px, 140px, 0); }
-            100% { clip: rect(5px, 9999px, 55px, 0); }
-        }
-
-        /* 旋转光环 */
-        .orbit-ring {
-            position: absolute;
-            width: 120px;
-            height: 120px;
-            border: 2px solid transparent;
-            border-top-color: var(--neon-cyan);
-            border-bottom-color: var(--neon-pink);
-            border-radius: 50%;
-            animation: orbit-spin 4s linear infinite;
-        }
-
-        .orbit-ring::before {
-            content: '';
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            right: 10px;
-            bottom: 10px;
-            border: 2px solid transparent;
-            border-left-color: var(--neon-purple);
-            border-right-color: var(--neon-green);
-            border-radius: 50%;
-            animation: orbit-spin 3s linear infinite reverse;
-        }
-
-        @keyframes orbit-spin {
-            to { transform: rotate(360deg); }
-        }
-
+        
+        body { font-family: 'Noto Sans KR', 'Rajdhani', sans-serif; background: var(--dark-bg); color: var(--text-primary); min-height: 100vh; overflow-x: hidden; position: relative; }
+        
+        .cyber-grid { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-image: linear-gradient(rgba(0, 243, 255, 0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 243, 255, 0.08) 1px, transparent 1px); background-size: 40px 40px; pointer-events: none; z-index: 0; animation: grid-move 20s linear infinite; }
+        @keyframes grid-move { 0% { transform: perspective(500px) rotateX(60deg) translateY(0); } 100% { transform: perspective(500px) rotateX(60deg) translateY(40px); } }
+        
+        .data-stream { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; overflow: hidden; }
+        .data-stream-col { position: absolute; top: -100%; width: 30px; text-align: center; font-family: 'Orbitron', monospace; font-size: 10px; color: var(--neon-cyan); opacity: 0.1; animation: data-fall linear infinite; text-shadow: 0 0 8px var(--neon-cyan); line-height: 1.5; }
+        @keyframes data-fall { 0% { transform: translateY(-100%); } 100% { transform: translateY(calc(100vh + 100%)); } }
+        
+        .pulse-bg { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 200vw; height: 200vh; background: radial-gradient(circle, rgba(0, 243, 255, 0.03) 0%, transparent 60%); animation: pulse-expand 4s ease-out infinite; pointer-events: none; z-index: 0; }
+        @keyframes pulse-expand { 0% { opacity: 1; transform: translate(-50%, -50%) scale(0.8); } 100% { opacity: 0; transform: translate(-50%, -50%) scale(1.5); } }
+        
+        .scanline { position: fixed; top: 0; left: 0; width: 100%; height: 4px; background: linear-gradient(90deg, transparent, var(--neon-cyan), var(--neon-pink), var(--neon-purple), transparent); opacity: 0.6; animation: scan 2.5s linear infinite; pointer-events: none; z-index: 2; box-shadow: 0 0 30px var(--neon-cyan), 0 0 60px var(--neon-pink); }
+        @keyframes scan { 0% { top: -5%; } 100% { top: 105%; } }
+        
+        .floating-shapes { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2; overflow: hidden; }
+        .shape { position: absolute; opacity: 0.15; animation: float-shape linear infinite; }
+        .shape.diamond { width: 20px; height: 20px; background: var(--neon-cyan); transform: rotate(45deg); box-shadow: 0 0 20px var(--neon-cyan); }
+        .shape.circle { width: 15px; height: 15px; border: 2px solid var(--neon-pink); border-radius: 50%; box-shadow: 0 0 15px var(--neon-pink), inset 0 0 10px var(--neon-pink); }
+        .shape.triangle { width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; border-bottom: 20px solid var(--neon-purple); filter: drop-shadow(0 0 10px var(--neon-purple)); }
+        .shape.hexagon { width: 25px; height: 14px; background: var(--neon-green); position: absolute; box-shadow: 0 0 20px var(--neon-green); }
+        .shape.hexagon::before, .shape.hexagon::after { content: ''; position: absolute; width: 0; border-left: 12px solid transparent; border-right: 12px solid transparent; }
+        .shape.hexagon::before { top: -7px; border-bottom: 7px solid var(--neon-green); }
+        .shape.hexagon::after { bottom: -7px; border-top: 7px solid var(--neon-green); }
+        @keyframes float-shape { 0% { transform: translateY(110vh) rotate(0deg); opacity: 0; } 10% { opacity: 0.15; } 90% { opacity: 0.15; } 100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; } }
+        
+        .bg-glow { position: fixed; width: 600px; height: 600px; border-radius: 50%; filter: blur(150px); opacity: 0.15; pointer-events: none; z-index: 0; }
+        .bg-glow.cyan { background: var(--neon-cyan); top: -200px; left: -200px; animation: glow-drift 8s ease-in-out infinite; }
+        .bg-glow.pink { background: var(--neon-pink); bottom: -200px; right: -200px; animation: glow-drift 10s ease-in-out infinite reverse; }
+        @keyframes glow-drift { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(50px, 30px); } }
+        
+        .app-container { position: relative; z-index: 10; max-width: 480px; margin: 0 auto; padding: 20px 16px; min-height: 100vh; }
+        
+        .holo-header { text-align: center; padding: 40px 0; position: relative; }
+        .holo-title { font-family: 'Orbitron', sans-serif; font-size: 32px; font-weight: 900; text-transform: uppercase; letter-spacing: 6px; background: linear-gradient(90deg, var(--neon-cyan), var(--neon-pink), var(--neon-purple), var(--neon-cyan)); background-size: 300% 100%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: holo-shimmer 3s linear infinite; position: relative; text-shadow: 0 0 40px rgba(0, 243, 255, 0.5); }
+        @keyframes holo-shimmer { 0% { background-position: 0% 50%; } 100% { background-position: 300% 50%; } }
+        .holo-subtitle { font-family: 'Rajdhani', sans-serif; font-size: 13px; color: var(--text-secondary); letter-spacing: 10px; margin-top: 10px; text-transform: uppercase; animation: subtitle-flicker 3s ease-in-out infinite; }
+        @keyframes subtitle-flicker { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
+        
+        .glitch { position: relative; }
+        .glitch::before, .glitch::after { content: attr(data-text); position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+        .glitch::before { left: 2px; text-shadow: -2px 0 var(--neon-pink); clip: rect(24px, 550px, 90px, 0); animation: glitch-anim 3s infinite linear alternate-reverse; }
+        .glitch::after { left: -2px; text-shadow: -2px 0 var(--neon-cyan); clip: rect(85px, 550px, 140px, 0); animation: glitch-anim2 2.5s infinite linear alternate-reverse; }
+        @keyframes glitch-anim { 0% { clip: rect(10px, 9999px, 85px, 0); } 20% { clip: rect(63px, 9999px, 130px, 0); } 40% { clip: rect(25px, 9999px, 15px, 0); } 60% { clip: rect(88px, 9999px, 95px, 0); } 80% { clip: rect(45px, 9999px, 60px, 0); } 100% { clip: rect(15px, 9999px, 110px, 0); } }
+        @keyframes glitch-anim2 { 0% { clip: rect(65px, 9999px, 99px, 0); } 20% { clip: rect(15px, 9999px, 45px, 0); } 40% { clip: rect(85px, 9999px, 120px, 0); } 60% { clip: rect(35px, 9999px, 75px, 0); } 80% { clip: rect(95px, 9999px, 140px, 0); } 100% { clip: rect(5px, 9999px, 55px, 0); } }
+        
+        .orbit-ring { position: absolute; width: 120px; height: 120px; border: 2px solid transparent; border-top-color: var(--neon-cyan); border-bottom-color: var(--neon-pink); border-radius: 50%; animation: orbit-spin 4s linear infinite; }
+        .orbit-ring::before { content: ''; position: absolute; top: 10px; left: 10px; right: 10px; bottom: 10px; border: 2px solid transparent; border-left-color: var(--neon-purple); border-right-color: var(--neon-green); border-radius: 50%; animation: orbit-spin 3s linear infinite reverse; }
+        @keyframes orbit-spin { to { transform: rotate(360deg); } }
         .orbit-ring.left { top: 60px; left: -40px; }
         .orbit-ring.right { bottom: 60px; right: -40px; }
-
-        /* 全息卡片 */
-        .holo-card {
-            background: linear-gradient(135deg, 
-                rgba(0, 243, 255, 0.08), 
-                rgba(176, 38, 255, 0.08));
-            backdrop-filter: blur(30px);
-            border: 1px solid rgba(0, 243, 255, 0.3);
-            border-radius: 24px;
-            padding: 28px;
-            margin-bottom: 24px;
-            position: relative;
-            overflow: hidden;
-            animation: holo-appear 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-            box-shadow: 
-                0 0 40px rgba(0, 243, 255, 0.1),
-                inset 0 0 40px rgba(0, 243, 255, 0.02);
-        }
-
-        .holo-card::before {
-            content: '';
-            position: absolute;
-            top: -2px;
-            left: -2px;
-            right: -2px;
-            bottom: -2px;
-            background: linear-gradient(45deg, 
-                var(--neon-cyan), 
-                var(--neon-pink), 
-                var(--neon-purple),
-                var(--neon-green),
-                var(--neon-cyan));
-            background-size: 400% 400%;
-            border-radius: 25px;
-            z-index: -1;
-            animation: border-flow 4s ease infinite;
-            opacity: 0.5;
-        }
-
-        @keyframes border-flow {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
-        .holo-card::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, 
-                transparent, 
-                rgba(255, 255, 255, 0.1), 
-                transparent);
-            animation: holo-sweep 3s ease-in-out infinite;
-        }
-
-        @keyframes holo-sweep {
-            0% { left: -100%; }
-            100% { left: 200%; }
-        }
-
-        @keyframes holo-appear {
-            from {
-                opacity: 0;
-                transform: translateY(40px) scale(0.9) rotateX(10deg);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1) rotateX(0);
-            }
-        }
-
-        /* 波浪标题 */
-        .wave-title {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 18px;
-            font-weight: 700;
-            margin-bottom: 24px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            text-transform: uppercase;
-            letter-spacing: 3px;
-        }
-
-        .wave-title .icon {
-            font-size: 24px;
-            animation: icon-pulse 1.5s ease-in-out infinite;
-        }
-
-        @keyframes icon-pulse {
-            0%, 100% { transform: scale(1) rotate(0deg); }
-            50% { transform: scale(1.2) rotate(5deg); }
-        }
-
-        .wave-title .text {
-            background: linear-gradient(90deg, var(--neon-cyan), var(--neon-pink));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        /* 账户卡片 */
-        .account-card {
-            background: linear-gradient(135deg, 
-                rgba(0, 243, 255, 0.06), 
-                rgba(176, 38, 255, 0.06));
-            border: 1px solid rgba(0, 243, 255, 0.25);
-            border-radius: 18px;
-            padding: 22px;
-            margin-bottom: 18px;
-            cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            position: relative;
-            overflow: hidden;
-            animation: card-slide-in 0.6s ease-out backwards;
-        }
-
-        .account-card:nth-child(1) { animation-delay: 0.1s; }
-        .account-card:nth-child(2) { animation-delay: 0.2s; }
-        .account-card:nth-child(3) { animation-delay: 0.3s; }
-        .account-card:nth-child(4) { animation-delay: 0.4s; }
-        .account-card:nth-child(5) { animation-delay: 0.5s; }
-        .account-card:nth-child(6) { animation-delay: 0.6s; }
-
-        @keyframes card-slide-in {
-            from {
-                opacity: 0;
-                transform: translateX(-60px) scale(0.9);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0) scale(1);
-            }
-        }
-
-        .account-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 5px;
-            height: 100%;
-            background: linear-gradient(180deg, var(--neon-cyan), var(--neon-pink));
-            opacity: 0;
-            transition: all 0.3s ease;
-            box-shadow: 0 0 20px var(--neon-cyan);
-        }
-
-        .account-card::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, 
-                rgba(0, 243, 255, 0.1),
-                rgba(255, 0, 255, 0.05));
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .account-card:hover {
-            transform: translateX(12px) scale(1.02);
-            border-color: var(--neon-cyan);
-            box-shadow: 
-                0 0 40px rgba(0, 243, 255, 0.3),
-                0 10px 40px rgba(0, 0, 0, 0.5);
-        }
-
-        .account-card:hover::before {
-            opacity: 1;
-        }
-
-        .account-card:hover::after {
-            opacity: 1;
-        }
-
-        .account-card.selected {
-            border-color: var(--neon-green);
-            background: linear-gradient(135deg, 
-                rgba(0, 255, 136, 0.12), 
-                rgba(0, 243, 255, 0.08));
-            box-shadow: 
-                0 0 50px rgba(0, 255, 136, 0.4),
-                inset 0 0 30px rgba(0, 255, 136, 0.05);
-        }
-
-        .account-card.selected::before {
-            background: var(--neon-green);
-            box-shadow: 0 0 30px var(--neon-green);
-            opacity: 1;
-        }
-
-        .account-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 16px;
-            position: relative;
-            z-index: 1;
-        }
-
-        .account-country {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-        }
-
-        .country-flag {
-            font-size: 36px;
-            filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.4));
-            animation: flag-bounce 2s ease-in-out infinite;
-        }
-
-        @keyframes flag-bounce {
-            0%, 100% { transform: translateY(0) scale(1); }
-            25% { transform: translateY(-8px) scale(1.1); }
-            50% { transform: translateY(0) scale(1); }
-            75% { transform: translateY(-4px) scale(1.05); }
-        }
-
-        .country-name {
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 20px;
-            font-weight: 700;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-        }
-
-        .stock-badge {
-            background: linear-gradient(90deg, var(--neon-cyan), var(--neon-purple));
-            padding: 6px 16px;
-            border-radius: 25px;
-            font-size: 12px;
-            font-weight: 700;
-            letter-spacing: 2px;
-            box-shadow: 0 0 20px rgba(0, 243, 255, 0.4);
-            animation: badge-pulse 2s ease-in-out infinite;
-        }
-
-        @keyframes badge-pulse {
-            0%, 100% { transform: scale(1); box-shadow: 0 0 20px rgba(0, 243, 255, 0.4); }
-            50% { transform: scale(1.05); box-shadow: 0 0 30px rgba(0, 243, 255, 0.6); }
-        }
-
-        .account-info {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 14px;
-            color: var(--text-secondary);
-            position: relative;
-            z-index: 1;
-        }
-
-        .account-phone {
-            font-family: 'Orbitron', monospace;
-            color: var(--neon-cyan);
-            letter-spacing: 2px;
-            font-size: 13px;
-        }
-
-        .account-price {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 22px;
-            font-weight: 800;
-            background: linear-gradient(90deg, var(--neon-green), var(--neon-cyan));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            text-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
-        }
-
-        /* 数量选择器 - 全息风格 */
-        .qty-container {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 32px;
-            margin: 36px 0;
-        }
-
-        .qty-btn {
-            width: 64px;
-            height: 64px;
-            border-radius: 50%;
-            border: 2px solid var(--neon-cyan);
-            background: transparent;
-            color: var(--neon-cyan);
-            font-size: 32px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: 'Orbitron', sans-serif;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 
-                0 0 20px rgba(0, 243, 255, 0.3),
-                inset 0 0 20px rgba(0, 243, 255, 0.1);
-        }
-
-        .qty-btn::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            background: var(--neon-cyan);
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            transition: all 0.4s ease;
-        }
-
-        .qty-btn:active::before {
-            width: 120%;
-            height: 120%;
-        }
-
-        .qty-btn:hover {
-            box-shadow: 
-                0 0 40px rgba(0, 243, 255, 0.6),
-                inset 0 0 30px rgba(0, 243, 255, 0.2);
-            transform: scale(1.15);
-        }
-
-        .qty-btn:active {
-            transform: scale(0.95);
-        }
-
-        .qty-display {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 64px;
-            font-weight: 900;
-            background: linear-gradient(180deg, var(--neon-cyan), var(--neon-pink));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            min-width: 120px;
-            text-align: center;
-            animation: qty-hologram 2s ease-in-out infinite;
-            filter: drop-shadow(0 0 30px rgba(0, 243, 255, 0.6));
-        }
-
-        @keyframes qty-hologram {
-            0%, 100% { 
-                transform: scale(1); 
-                filter: drop-shadow(0 0 30px rgba(0, 243, 255, 0.6));
-            }
-            50% { 
-                transform: scale(1.08); 
-                filter: drop-shadow(0 0 50px rgba(255, 0, 255, 0.8));
-            }
-        }
-
-        /* 全息价格显示 */
-        .holo-price {
-            text-align: center;
-            padding: 40px 24px;
-            background: linear-gradient(135deg, 
-                rgba(0, 243, 255, 0.1), 
-                rgba(176, 38, 255, 0.1));
-            border-radius: 24px;
-            border: 1px solid rgba(0, 243, 255, 0.4);
-            margin: 24px 0;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .holo-price::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: conic-gradient(
-                from 0deg,
-                transparent,
-                rgba(0, 243, 255, 0.15),
-                transparent,
-                rgba(255, 0, 255, 0.15),
-                transparent,
-                rgba(176, 38, 255, 0.15),
-                transparent
-            );
-            animation: price-rotate 6s linear infinite;
-        }
-
-        @keyframes price-rotate {
-            to { transform: rotate(360deg); }
-        }
-
-        .holo-price .price-label {
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 14px;
-            color: var(--text-secondary);
-            letter-spacing: 6px;
-            text-transform: uppercase;
-            position: relative;
-            z-index: 1;
-        }
-
-        .holo-price .price-value {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 56px;
-            font-weight: 900;
-            background: linear-gradient(90deg, var(--neon-green), var(--neon-cyan));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            position: relative;
-            z-index: 1;
-            text-shadow: 0 0 50px rgba(0, 255, 136, 0.5);
-            animation: price-glow 2s ease-in-out infinite alternate;
-        }
-
-        @keyframes price-glow {
-            from { filter: brightness(1); }
-            to { filter: brightness(1.3); }
-        }
-
-        .holo-price .price-unit {
-            font-size: 22px;
-            font-weight: 600;
-            opacity: 0.8;
-        }
-
-        .holo-price .price-note {
-            font-size: 11px;
-            color: var(--neon-orange);
-            margin-top: 10px;
-            position: relative;
-            z-index: 1;
-            letter-spacing: 2px;
-        }
-
-        /* 霓虹按钮 */
-        .neon-btn {
-            position: relative;
-            display: block;
-            width: 100%;
-            padding: 20px 32px;
-            font-family: 'Orbitron', sans-serif;
-            font-size: 16px;
-            font-weight: 800;
-            letter-spacing: 4px;
-            text-transform: uppercase;
-            color: var(--neon-cyan);
-            background: transparent;
-            border: 2px solid var(--neon-cyan);
-            border-radius: 12px;
-            cursor: pointer;
-            overflow: hidden;
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            text-align: center;
-            margin-top: 24px;
-        }
-
-        .neon-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, 
-                transparent, 
-                rgba(0, 243, 255, 0.3), 
-                transparent);
-            transition: left 0.6s ease;
-        }
-
-        .neon-btn:hover::before {
-            left: 100%;
-        }
-
-        .neon-btn:hover {
-            background: rgba(0, 243, 255, 0.15);
-            box-shadow: 
-                0 0 50px rgba(0, 243, 255, 0.6),
-                inset 0 0 50px rgba(0, 243, 255, 0.1);
-            transform: translateY(-4px);
-            letter-spacing: 6px;
-        }
-
-        .neon-btn:active {
-            transform: translateY(-2px) scale(0.98);
-        }
-
-        .neon-btn.pink {
-            color: var(--neon-pink);
-            border-color: var(--neon-pink);
-        }
-
-        .neon-btn.pink:hover {
-            background: rgba(255, 0, 255, 0.15);
-            box-shadow: 
-                0 0 50px rgba(255, 0, 255, 0.6),
-                inset 0 0 50px rgba(255, 0, 255, 0.1);
-        }
-
-        .neon-btn.green {
-            color: var(--neon-green);
-            border-color: var(--neon-green);
-        }
-
-        .neon-btn.green:hover {
-            background: rgba(0, 255, 136, 0.15);
-            box-shadow: 
-                0 0 50px rgba(0, 255, 136, 0.6),
-                inset 0 0 50px rgba(0, 255, 136, 0.1);
-        }
-
-        /* 页面切换 */
-        .page {
-            display: none;
-            animation: page-hologram 0.6s ease-out;
-        }
-
-        .page.active {
-            display: block;
-        }
-
-        @keyframes page-hologram {
-            from {
-                opacity: 0;
-                transform: scale(0.9) translateY(30px);
-                filter: blur(10px);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1) translateY(0);
-                filter: blur(0);
-            }
-        }
-
-        /* 加载动画 - 全息螺旋 */
-        .loading-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(5, 5, 10, 0.97);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            flex-direction: column;
-            gap: 24px;
-        }
-
-        .loading-overlay.show {
-            display: flex;
-        }
-
-        .holo-spinner {
-            width: 100px;
-            height: 100px;
-            position: relative;
-        }
-
-        .holo-spinner::before,
-        .holo-spinner::after {
-            content: '';
-            position: absolute;
-            border-radius: 50%;
-        }
-
-        .holo-spinner::before {
-            width: 100%;
-            height: 100%;
-            border: 4px solid transparent;
-            border-top-color: var(--neon-cyan);
-            border-bottom-color: var(--neon-pink);
-            animation: spin-cube 1s linear infinite;
-            box-shadow: 0 0 30px var(--neon-cyan), inset 0 0 30px var(--neon-pink);
-        }
-
-        .holo-spinner::after {
-            width: 70%;
-            height: 70%;
-            top: 15%;
-            left: 15%;
-            border: 4px solid transparent;
-            border-left-color: var(--neon-purple);
-            border-right-color: var(--neon-green);
-            animation: spin-cube 0.7s linear infinite reverse;
-        }
-
-        @keyframes spin-cube {
-            to { transform: rotate(360deg); }
-        }
-
-        .loading-text {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 14px;
-            color: var(--neon-cyan);
-            letter-spacing: 6px;
-            animation: loading-flicker 1.5s ease-in-out infinite;
-        }
-
-        @keyframes loading-flicker {
-            0%, 100% { opacity: 0.4; }
-            50% { opacity: 1; }
-        }
-
-        /* 成功动画 - 全息徽章 */
-        .success-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(5, 5, 10, 0.98);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 1001;
-            flex-direction: column;
-            gap: 32px;
-        }
-
-        .success-overlay.show {
-            display: flex;
-        }
-
-        .holo-badge {
-            width: 140px;
-            height: 140px;
-            position: relative;
-            animation: badge-appear 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        .holo-badge::before {
-            content: '';
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            border: 3px solid var(--neon-green);
-            border-radius: 50%;
-            box-shadow: 0 0 50px var(--neon-green), inset 0 0 50px rgba(0, 255, 136, 0.2);
-            animation: badge-ring 2s ease-in-out infinite;
-        }
-
-        .holo-badge::after {
-            content: '';
-            position: absolute;
-            width: 70%;
-            height: 70%;
-            top: 15%;
-            left: 15%;
-            border: 2px solid var(--neon-cyan);
-            border-radius: 50%;
-            box-shadow: 0 0 30px var(--neon-cyan);
-            animation: badge-ring 1.5s ease-in-out infinite reverse;
-        }
-
-        @keyframes badge-ring {
-            0%, 100% { transform: scale(1) rotate(0deg); }
-            50% { transform: scale(1.1) rotate(180deg); }
-        }
-
-        @keyframes badge-appear {
-            0% { transform: scale(0) rotate(-180deg); opacity: 0; }
-            60% { transform: scale(1.2) rotate(10deg); }
-            100% { transform: scale(1) rotate(0deg); opacity: 1; }
-        }
-
-        .success-check {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 70px;
-            z-index: 2;
-            filter: drop-shadow(0 0 30px var(--neon-green));
-        }
-
-        .success-title {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 32px;
-            font-weight: 900;
-            background: linear-gradient(90deg, var(--neon-green), var(--neon-cyan));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            animation: success-text 0.6s ease-out 0.4s both;
-        }
-
-        @keyframes success-text {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .success-subtitle {
-            font-size: 15px;
-            color: var(--text-secondary);
-            text-align: center;
-            padding: 0 50px;
-            animation: success-sub 0.5s ease-out 0.6s both;
-            line-height: 1.8;
-        }
-
-        /* 步骤指示器 - 全息节点 */
-        .steps-indicator {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            margin-bottom: 36px;
-        }
-
-        .step-node {
-            width: 14px;
-            height: 14px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.08);
-            border: 2px solid rgba(0, 243, 255, 0.3);
-            transition: all 0.4s ease;
-            position: relative;
-        }
-
-        .step-node::before {
-            content: '';
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            background: inherit;
-            filter: blur(8px);
-            opacity: 0.5;
-        }
-
-        .step-node.active {
-            background: var(--neon-cyan);
-            border-color: var(--neon-cyan);
-            width: 50px;
-            border-radius: 7px;
-            box-shadow: 0 0 30px var(--neon-cyan);
-            animation: node-pulse 1.5s ease-in-out infinite;
-        }
-
-        @keyframes node-pulse {
-            0%, 100% { box-shadow: 0 0 30px var(--neon-cyan); }
-            50% { box-shadow: 0 0 50px var(--neon-cyan), 0 0 80px var(--neon-pink); }
-        }
-
-        .step-node.completed {
-            background: var(--neon-green);
-            border-color: var(--neon-green);
-            box-shadow: 0 0 20px var(--neon-green);
-        }
-
-        /* 支付地址 - 全息投影 */
-        .payment-address {
-            background: rgba(0, 0, 0, 0.5);
-            border-radius: 16px;
-            padding: 20px;
-            margin: 24px 0;
-            font-family: 'Orbitron', monospace;
-            font-size: 12px;
-            word-break: break-all;
-            text-align: center;
-            border: 1px solid rgba(0, 243, 255, 0.3);
-            position: relative;
-            overflow: hidden;
-            animation: address-holo 3s ease-in-out infinite;
-        }
-
-        @keyframes address-holo {
-            0%, 100% { 
-                box-shadow: 0 0 20px rgba(0, 243, 255, 0.2);
-                border-color: rgba(0, 243, 255, 0.3);
-            }
-            50% { 
-                box-shadow: 0 0 40px rgba(0, 243, 255, 0.4);
-                border-color: rgba(0, 243, 255, 0.6);
-            }
-        }
-
-        .payment-address::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, 
-                transparent, 
-                rgba(0, 243, 255, 0.2), 
-                transparent);
-            animation: address-shine 2s linear infinite;
-        }
-
-        @keyframes address-shine {
-            to { left: 100%; }
-        }
-
-        .copy-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            margin-top: 16px;
-            padding: 14px 28px;
-            background: transparent;
-            border: 1px solid var(--neon-cyan);
-            border-radius: 10px;
-            color: var(--neon-cyan);
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 15px;
-            font-weight: 700;
-            letter-spacing: 3px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .copy-btn:hover {
-            background: rgba(0, 243, 255, 0.15);
-            box-shadow: 0 0 30px rgba(0, 243, 255, 0.4);
-            transform: translateY(-2px);
-        }
-
-        .copy-btn:active {
-            transform: scale(0.95);
-        }
-
-        .copy-btn.copied {
-            background: rgba(0, 255, 136, 0.15);
-            border-color: var(--neon-green);
-            color: var(--neon-green);
-        }
-
-        /* 倒计时 - 数字时钟 */
-        .countdown {
-            text-align: center;
-            margin: 28px 0;
-        }
-
-        .countdown-value {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 52px;
-            font-weight: 900;
-            color: var(--neon-orange);
-            text-shadow: 
-                0 0 30px rgba(255, 107, 53, 0.8),
-                0 0 60px rgba(255, 107, 53, 0.4);
-            letter-spacing: 6px;
-            animation: countdown-blink 1s ease-in-out infinite;
-        }
-
-        @keyframes countdown-blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
-        }
-
-        .countdown-label {
-            font-size: 12px;
-            color: var(--text-secondary);
-            letter-spacing: 4px;
-            text-transform: uppercase;
-            margin-top: 8px;
-        }
-
-        /* 订单摘要 - 数据面板 */
-        .order-summary {
-            background: linear-gradient(135deg, 
-                rgba(0, 243, 255, 0.06), 
-                rgba(176, 38, 255, 0.06));
-            border-radius: 20px;
-            padding: 24px;
-            margin: 24px 0;
-            border: 1px solid rgba(0, 243, 255, 0.25);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .order-summary::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 2px;
-            background: linear-gradient(90deg, 
-                transparent, 
-                var(--neon-cyan), 
-                var(--neon-pink),
-                transparent);
-        }
-
-        .order-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 14px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            animation: order-item-in 0.4s ease-out backwards;
-        }
-
-        .order-item:nth-child(1) { animation-delay: 0.1s; }
-        .order-item:nth-child(2) { animation-delay: 0.2s; }
-        .order-item:nth-child(3) { animation-delay: 0.3s; }
-
-        @keyframes order-item-in {
-            from { opacity: 0; transform: translateX(-20px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-
-        .order-item:last-child {
-            border-bottom: none;
-        }
-
-        .order-label {
-            color: var(--text-secondary);
-            font-size: 14px;
-            letter-spacing: 1px;
-        }
-
-        .order-value {
-            font-family: 'Rajdhani', sans-serif;
-            font-weight: 700;
-            color: var(--neon-cyan);
-            letter-spacing: 1px;
-        }
-
-        /* 警告框 */
-        .warning-box {
-            background: rgba(255, 107, 53, 0.08);
-            border: 1px solid rgba(255, 107, 53, 0.4);
-            border-radius: 14px;
-            padding: 18px;
-            margin: 20px 0;
-            font-size: 13px;
-            color: var(--neon-orange);
-            line-height: 1.8;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .warning-box::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 4px;
-            height: 100%;
-            background: linear-gradient(180deg, var(--neon-orange), var(--neon-yellow));
-            box-shadow: 0 0 20px var(--neon-orange);
-        }
-
-        /* 页脚 */
-        .cyber-footer {
-            text-align: center;
-            padding: 48px 20px;
-            color: var(--text-secondary);
-            font-size: 11px;
-            letter-spacing: 3px;
-        }
-
-        .cyber-footer .logo {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 24px;
-            font-weight: 900;
-            background: linear-gradient(90deg, var(--neon-cyan), var(--neon-pink));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 16px;
-            animation: logo-glow 2s ease-in-out infinite alternate;
-        }
-
-        @keyframes logo-glow {
-            from { filter: drop-shadow(0 0 10px var(--neon-cyan)); }
-            to { filter: drop-shadow(0 0 30px var(--neon-pink)); }
-        }
-
-        .cyber-footer .secure-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            margin-top: 12px;
-            padding: 8px 16px;
-            background: rgba(0, 255, 136, 0.08);
-            border: 1px solid rgba(0, 255, 136, 0.3);
-            border-radius: 20px;
-            font-size: 10px;
-            color: var(--neon-green);
-            letter-spacing: 2px;
-        }
-
-        /* 支持的支付方式 */
-        .payment-methods {
-            display: flex;
-            justify-content: center;
-            gap: 40px;
-            margin: 28px 0;
-        }
-
-        .payment-method {
-            text-align: center;
-            transition: all 0.3s ease;
-        }
-
-        .payment-method:hover {
-            transform: translateY(-5px);
-        }
-
-        .payment-icon {
-            font-size: 40px;
-            margin-bottom: 10px;
-            filter: drop-shadow(0 0 15px currentColor);
-            animation: icon-float 3s ease-in-out infinite;
-        }
-
-        @keyframes icon-float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-
-        .payment-name {
-            font-size: 11px;
-            color: var(--text-secondary);
-            letter-spacing: 2px;
-        }
-
-        /* 订单确认卡片 */
-        .order-confirm-card {
-            background: linear-gradient(135deg, rgba(0, 255, 136, 0.08), rgba(0, 243, 255, 0.08));
-            border: 1px solid rgba(0, 255, 136, 0.4);
-            border-radius: 20px;
-            padding: 24px;
-            margin: 20px 0;
-            position: relative;
-            overflow: hidden;
-            animation: order-appear 0.6s ease-out;
-        }
-
-        @keyframes order-appear {
-            from { opacity: 0; transform: scale(0.9); }
-            to { opacity: 1; transform: scale(1); }
-        }
-
-        .order-confirm-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 3px;
-            background: linear-gradient(90deg, var(--neon-green), var(--neon-cyan), var(--neon-green));
-            background-size: 200% 100%;
-            animation: border-flow 2s linear infinite;
-        }
-
-        .order-account-info {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            padding: 16px;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 12px;
-            margin: 16px 0;
-        }
-
-        .order-flag {
-            font-size: 40px;
-            animation: flag-bounce 2s ease-in-out infinite;
-        }
-
-        .order-details {
-            flex: 1;
-        }
-
-        .order-detail-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 6px 0;
-            font-size: 13px;
-        }
-
-        .order-detail-label {
-            color: var(--text-secondary);
-        }
-
-        .order-detail-value {
-            color: var(--neon-cyan);
-            font-family: 'Orbitron', monospace;
-        }
-
-        /* 购买历史 */
-        .order-history {
-            margin-top: 30px;
-        }
-
-        .history-title {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 14px;
-            color: var(--neon-purple);
-            letter-spacing: 3px;
-            margin-bottom: 16px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .history-item {
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(0, 243, 255, 0.2);
-            border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 12px;
-            animation: history-slide 0.4s ease-out backwards;
-        }
-
-        @keyframes history-slide {
-            from { opacity: 0; transform: translateX(-20px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-
-        .history-item-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-
-        .history-order-id {
-            font-family: 'Orbitron', monospace;
-            font-size: 11px;
-            color: var(--neon-cyan);
-        }
-
-        .history-status {
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 10px;
-            font-weight: 700;
-            letter-spacing: 1px;
-        }
-
-        .history-status.completed {
-            background: rgba(0, 255, 136, 0.2);
-            color: var(--neon-green);
-            border: 1px solid var(--neon-green);
-        }
-
-        .history-status.pending {
-            background: rgba(255, 107, 53, 0.2);
-            color: var(--neon-orange);
-            border: 1px solid var(--neon-orange);
-        }
-
-        .history-item-body {
-            display: flex;
-            justify-content: space-between;
-            font-size: 12px;
-            color: var(--text-secondary);
-        }
-
-        .history-item-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 10px;
-            padding-top: 10px;
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .history-price {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 14px;
-            color: var(--neon-green);
-        }
-
-        /* 用户信息面板 */
-        .user-panel {
-            background: linear-gradient(135deg, rgba(176, 38, 255, 0.1), rgba(0, 243, 255, 0.1));
-            border: 1px solid rgba(176, 38, 255, 0.3);
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 24px;
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-
-        .user-avatar {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--neon-purple), var(--neon-cyan));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            font-family: 'Orbitron', sans-serif;
-            font-weight: 700;
-            box-shadow: 0 0 20px rgba(176, 38, 255, 0.5);
-        }
-
-        .user-info {
-            flex: 1;
-        }
-
-        .user-name {
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 18px;
-            font-weight: 700;
-            color: var(--text-primary);
-        }
-
-        .user-id {
-            font-size: 11px;
-            color: var(--text-secondary);
-            font-family: 'Orbitron', monospace;
-        }
-
-        .user-stats {
-            text-align: right;
-        }
-
-        .user-order-count {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 20px;
-            font-weight: 700;
-            color: var(--neon-purple);
-        }
-
-        .user-order-label {
-            font-size: 10px;
-            color: var(--text-secondary);
-            letter-spacing: 1px;
-        }
-
-        /* 空状态 */
-        .empty-state {
-            text-align: center;
-            padding: 40px 20px;
-            color: var(--text-secondary);
-        }
-
-        .empty-icon {
-            font-size: 60px;
-            margin-bottom: 16px;
-            opacity: 0.5;
-        }
-
-        .empty-text {
-            font-size: 14px;
-            letter-spacing: 1px;
-        }
-
-        /* 按钮 */
-        .nav-btn {
-            display: block;
-            width: 100%;
-            padding: 16px;
-            margin-top: 16px;
-            background: transparent;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 12px;
-            color: var(--text-secondary);
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 14px;
-            font-weight: 600;
-            letter-spacing: 2px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .nav-btn:hover {
-            border-color: var(--neon-cyan);
-            color: var(--neon-cyan);
-            background: rgba(0, 243, 255, 0.05);
-        }
-
-        /* 页面 4: 我的订单 */
-        .page4-content {
-            padding: 20px 0;
-        }
+        
+        .holo-card { background: linear-gradient(135deg, rgba(0, 243, 255, 0.08), rgba(176, 38, 255, 0.08)); backdrop-filter: blur(30px); border: 1px solid rgba(0, 243, 255, 0.3); border-radius: 24px; padding: 28px; margin-bottom: 24px; position: relative; overflow: hidden; animation: holo-appear 0.8s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: 0 0 40px rgba(0, 243, 255, 0.1), inset 0 0 40px rgba(0, 243, 255, 0.02); }
+        .holo-card::before { content: ''; position: absolute; top: -2px; left: -2px; right: -2px; bottom: -2px; background: linear-gradient(45deg, var(--neon-cyan), var(--neon-pink), var(--neon-purple), var(--neon-green), var(--neon-cyan)); background-size: 400% 400%; border-radius: 25px; z-index: -1; animation: border-flow 4s ease infinite; opacity: 0.5; }
+        @keyframes border-flow { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        .holo-card::after { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent); animation: holo-sweep 3s ease-in-out infinite; }
+        @keyframes holo-sweep { 0% { left: -100%; } 100% { left: 200%; } }
+        @keyframes holo-appear { from { opacity: 0; transform: translateY(40px) scale(0.9) rotateX(10deg); } to { opacity: 1; transform: translateY(0) scale(1) rotateX(0); } }
+        
+        .wave-title { font-family: 'Orbitron', sans-serif; font-size: 18px; font-weight: 700; margin-bottom: 24px; display: flex; align-items: center; gap: 12px; text-transform: uppercase; letter-spacing: 3px; }
+        .wave-title .icon { font-size: 24px; animation: icon-pulse 1.5s ease-in-out infinite; }
+        @keyframes icon-pulse { 0%, 100% { transform: scale(1) rotate(0deg); } 50% { transform: scale(1.2) rotate(5deg); } }
+        .wave-title .text { background: linear-gradient(90deg, var(--neon-cyan), var(--neon-pink)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        
+        .account-card { background: linear-gradient(135deg, rgba(0, 243, 255, 0.06), rgba(176, 38, 255, 0.06)); border: 1px solid rgba(0, 243, 255, 0.25); border-radius: 18px; padding: 22px; margin-bottom: 18px; cursor: pointer; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); position: relative; overflow: hidden; animation: card-slide-in 0.6s ease-out backwards; }
+        .account-card:nth-child(1) { animation-delay: 0.1s; } .account-card:nth-child(2) { animation-delay: 0.2s; } .account-card:nth-child(3) { animation-delay: 0.3s; } .account-card:nth-child(4) { animation-delay: 0.4s; } .account-card:nth-child(5) { animation-delay: 0.5s; } .account-card:nth-child(6) { animation-delay: 0.6s; }
+        @keyframes card-slide-in { from { opacity: 0; transform: translateX(-60px) scale(0.9); } to { opacity: 1; transform: translateX(0) scale(1); } }
+        .account-card::before { content: ''; position: absolute; top: 0; left: 0; width: 5px; height: 100%; background: linear-gradient(180deg, var(--neon-cyan), var(--neon-pink)); opacity: 0; transition: all 0.3s ease; box-shadow: 0 0 20px var(--neon-cyan); }
+        .account-card::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, rgba(0, 243, 255, 0.1), rgba(255, 0, 255, 0.05)); opacity: 0; transition: opacity 0.3s ease; }
+        .account-card:hover { transform: translateX(12px) scale(1.02); border-color: var(--neon-cyan); box-shadow: 0 0 40px rgba(0, 243, 255, 0.3), 0 10px 40px rgba(0, 0, 0, 0.5); }
+        .account-card:hover::before { opacity: 1; } .account-card:hover::after { opacity: 1; }
+        .account-card.selected { border-color: var(--neon-green); background: linear-gradient(135deg, rgba(0, 255, 136, 0.12), rgba(0, 243, 255, 0.08)); box-shadow: 0 0 50px rgba(0, 255, 136, 0.4), inset 0 0 30px rgba(0, 255, 136, 0.05); }
+        .account-card.selected::before { background: var(--neon-green); box-shadow: 0 0 30px var(--neon-green); opacity: 1; }
+        
+        .account-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; position: relative; z-index: 1; }
+        .account-country { display: flex; align-items: center; gap: 14px; }
+        .country-flag { font-size: 36px; filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.4)); animation: flag-bounce 2s ease-in-out infinite; }
+        @keyframes flag-bounce { 0%, 100% { transform: translateY(0) scale(1); } 25% { transform: translateY(-8px) scale(1.1); } 50% { transform: translateY(0) scale(1); } 75% { transform: translateY(-4px) scale(1.05); } }
+        .country-name { font-family: 'Rajdhani', sans-serif; font-size: 20px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; }
+        .stock-badge { background: linear-gradient(90deg, var(--neon-cyan), var(--neon-purple)); padding: 6px 16px; border-radius: 25px; font-size: 12px; font-weight: 700; letter-spacing: 2px; box-shadow: 0 0 20px rgba(0, 243, 255, 0.4); animation: badge-pulse 2s ease-in-out infinite; }
+        @keyframes badge-pulse { 0%, 100% { transform: scale(1); box-shadow: 0 0 20px rgba(0, 243, 255, 0.4); } 50% { transform: scale(1.05); box-shadow: 0 0 30px rgba(0, 243, 255, 0.6); } }
+        
+        .account-info { display: flex; justify-content: space-between; align-items: center; font-size: 14px; color: var(--text-secondary); position: relative; z-index: 1; }
+        .account-phone { font-family: 'Orbitron', monospace; color: var(--neon-cyan); letter-spacing: 2px; font-size: 13px; }
+        .account-price { font-family: 'Orbitron', sans-serif; font-size: 22px; font-weight: 800; background: linear-gradient(90deg, var(--neon-green), var(--neon-cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-shadow: 0 0 20px rgba(0, 255, 136, 0.3); }
+        
+        .qty-container { display: flex; align-items: center; justify-content: center; gap: 32px; margin: 36px 0; }
+        .qty-btn { width: 64px; height: 64px; border-radius: 50%; border: 2px solid var(--neon-cyan); background: transparent; color: var(--neon-cyan); font-size: 32px; font-weight: 700; cursor: pointer; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); display: flex; align-items: center; justify-content: center; font-family: 'Orbitron', sans-serif; position: relative; overflow: hidden; box-shadow: 0 0 20px rgba(0, 243, 255, 0.3), inset 0 0 20px rgba(0, 243, 255, 0.1); }
+        .qty-btn::before { content: ''; position: absolute; top: 50%; left: 50%; width: 0; height: 0; background: var(--neon-cyan); border-radius: 50%; transform: translate(-50%, -50%); transition: all 0.4s ease; }
+        .qty-btn:active::before { width: 120%; height: 120%; }
+        .qty-btn:hover { box-shadow: 0 0 40px rgba(0, 243, 255, 0.6), inset 0 0 30px rgba(0, 243, 255, 0.2); transform: scale(1.15); }
+        .qty-btn:active { transform: scale(0.95); }
+        
+        .qty-display { font-family: 'Orbitron', sans-serif; font-size: 64px; font-weight: 900; background: linear-gradient(180deg, var(--neon-cyan), var(--neon-pink)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; min-width: 120px; text-align: center; animation: qty-hologram 2s ease-in-out infinite; filter: drop-shadow(0 0 30px rgba(0, 243, 255, 0.6)); }
+        @keyframes qty-hologram { 0%, 100% { transform: scale(1); filter: drop-shadow(0 0 30px rgba(0, 243, 255, 0.6)); } 50% { transform: scale(1.08); filter: drop-shadow(0 0 50px rgba(255, 0, 255, 0.8)); } }
+        
+        .holo-price { text-align: center; padding: 40px 24px; background: linear-gradient(135deg, rgba(0, 243, 255, 0.1), rgba(176, 38, 255, 0.1)); border-radius: 24px; border: 1px solid rgba(0, 243, 255, 0.4); margin: 24px 0; position: relative; overflow: hidden; }
+        .holo-price::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: conic-gradient(from 0deg, transparent, rgba(0, 243, 255, 0.15), transparent, rgba(255, 0, 255, 0.15), transparent, rgba(176, 38, 255, 0.15), transparent); animation: price-rotate 6s linear infinite; }
+        @keyframes price-rotate { to { transform: rotate(360deg); } }
+        .holo-price .price-label { font-family: 'Rajdhani', sans-serif; font-size: 14px; color: var(--text-secondary); letter-spacing: 6px; text-transform: uppercase; position: relative; z-index: 1; }
+        .holo-price .price-value { font-family: 'Orbitron', sans-serif; font-size: 56px; font-weight: 900; background: linear-gradient(90deg, var(--neon-green), var(--neon-cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; position: relative; z-index: 1; text-shadow: 0 0 50px rgba(0, 255, 136, 0.5); animation: price-glow 2s ease-in-out infinite alternate; }
+        @keyframes price-glow { from { filter: brightness(1); } to { filter: brightness(1.3); } }
+        .holo-price .price-unit { font-size: 22px; font-weight: 600; opacity: 0.8; }
+        .holo-price .price-note { font-size: 11px; color: var(--neon-orange); margin-top: 10px; position: relative; z-index: 1; letter-spacing: 2px; }
+        
+        .neon-btn { position: relative; display: block; width: 100%; padding: 20px 32px; font-family: 'Orbitron', sans-serif; font-size: 16px; font-weight: 800; letter-spacing: 4px; text-transform: uppercase; color: var(--neon-cyan); background: transparent; border: 2px solid var(--neon-cyan); border-radius: 12px; cursor: pointer; overflow: hidden; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); text-align: center; margin-top: 24px; }
+        .neon-btn::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(0, 243, 255, 0.3), transparent); transition: left 0.6s ease; }
+        .neon-btn:hover::before { left: 100%; }
+        .neon-btn:hover { background: rgba(0, 243, 255, 0.15); box-shadow: 0 0 50px rgba(0, 243, 255, 0.6), inset 0 0 50px rgba(0, 243, 255, 0.1); transform: translateY(-4px); letter-spacing: 6px; }
+        .neon-btn:active { transform: translateY(-2px) scale(0.98); }
+        .neon-btn.pink { color: var(--neon-pink); border-color: var(--neon-pink); }
+        .neon-btn.pink:hover { background: rgba(255, 0, 255, 0.15); box-shadow: 0 0 50px rgba(255, 0, 255, 0.6), inset 0 0 50px rgba(255, 0, 255, 0.1); }
+        .neon-btn.green { color: var(--neon-green); border-color: var(--neon-green); }
+        .neon-btn.green:hover { background: rgba(0, 255, 136, 0.15); box-shadow: 0 0 50px rgba(0, 255, 136, 0.6), inset 0 0 50px rgba(0, 255, 136, 0.1); }
+        
+        .page { display: none; animation: page-hologram 0.6s ease-out; }
+        .page.active { display: block; }
+        @keyframes page-hologram { from { opacity: 0; transform: scale(0.9) translateY(30px); filter: blur(10px); } to { opacity: 1; transform: scale(1) translateY(0); filter: blur(0); } }
+        
+        .loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(5, 5, 10, 0.97); display: none; align-items: center; justify-content: center; z-index: 1000; flex-direction: column; gap: 24px; }
+        .loading-overlay.show { display: flex; }
+        .holo-spinner { width: 100px; height: 100px; position: relative; }
+        .holo-spinner::before, .holo-spinner::after { content: ''; position: absolute; border-radius: 50%; }
+        .holo-spinner::before { width: 100%; height: 100%; border: 4px solid transparent; border-top-color: var(--neon-cyan); border-bottom-color: var(--neon-pink); animation: spin-cube 1s linear infinite; box-shadow: 0 0 30px var(--neon-cyan), inset 0 0 30px var(--neon-pink); }
+        .holo-spinner::after { width: 70%; height: 70%; top: 15%; left: 15%; border: 4px solid transparent; border-left-color: var(--neon-purple); border-right-color: var(--neon-green); animation: spin-cube 0.7s linear infinite reverse; }
+        @keyframes spin-cube { to { transform: rotate(360deg); } }
+        .loading-text { font-family: 'Orbitron', sans-serif; font-size: 14px; color: var(--neon-cyan); letter-spacing: 6px; animation: loading-flicker 1.5s ease-in-out infinite; }
+        @keyframes loading-flicker { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
+        
+        .success-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(5, 5, 10, 0.98); display: none; align-items: center; justify-content: center; z-index: 1001; flex-direction: column; gap: 32px; }
+        .success-overlay.show { display: flex; }
+        .holo-badge { width: 140px; height: 140px; position: relative; animation: badge-appear 0.8s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        .holo-badge::before { content: ''; position: absolute; width: 100%; height: 100%; border: 3px solid var(--neon-green); border-radius: 50%; box-shadow: 0 0 50px var(--neon-green), inset 0 0 50px rgba(0, 255, 136, 0.2); animation: badge-ring 2s ease-in-out infinite; }
+        .holo-badge::after { content: ''; position: absolute; width: 70%; height: 70%; top: 15%; left: 15%; border: 2px solid var(--neon-cyan); border-radius: 50%; box-shadow: 0 0 30px var(--neon-cyan); animation: badge-ring 1.5s ease-in-out infinite reverse; }
+        @keyframes badge-ring { 0%, 100% { transform: scale(1) rotate(0deg); } 50% { transform: scale(1.1) rotate(180deg); } }
+        @keyframes badge-appear { 0% { transform: scale(0) rotate(-180deg); opacity: 0; } 60% { transform: scale(1.2) rotate(10deg); } 100% { transform: scale(1) rotate(0deg); opacity: 1; } }
+        .success-check { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 70px; z-index: 2; filter: drop-shadow(0 0 30px var(--neon-green)); }
+        .success-title { font-family: 'Orbitron', sans-serif; font-size: 32px; font-weight: 900; background: linear-gradient(90deg, var(--neon-green), var(--neon-cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: success-text 0.6s ease-out 0.4s both; }
+        @keyframes success-text { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        .success-subtitle { font-size: 15px; color: var(--text-secondary); text-align: center; padding: 0 50px; animation: success-sub 0.5s ease-out 0.6s both; line-height: 1.8; }
+        
+        .steps-indicator { display: flex; justify-content: center; gap: 20px; margin-bottom: 36px; }
+        .step-node { width: 14px; height: 14px; border-radius: 50%; background: rgba(255, 255, 255, 0.08); border: 2px solid rgba(0, 243, 255, 0.3); transition: all 0.4s ease; position: relative; }
+        .step-node::before { content: ''; position: absolute; width: 100%; height: 100%; border-radius: 50%; background: inherit; filter: blur(8px); opacity: 0.5; }
+        .step-node.active { background: var(--neon-cyan); border-color: var(--neon-cyan); width: 50px; border-radius: 7px; box-shadow: 0 0 30px var(--neon-cyan); animation: node-pulse 1.5s ease-in-out infinite; }
+        @keyframes node-pulse { 0%, 100% { box-shadow: 0 0 30px var(--neon-cyan); } 50% { box-shadow: 0 0 50px var(--neon-cyan), 0 0 80px var(--neon-pink); } }
+        .step-node.completed { background: var(--neon-green); border-color: var(--neon-green); box-shadow: 0 0 20px var(--neon-green); }
+        
+        .payment-address { background: rgba(0, 0, 0, 0.5); border-radius: 16px; padding: 20px; margin: 24px 0; font-family: 'Orbitron', monospace; font-size: 12px; word-break: break-all; text-align: center; border: 1px solid rgba(0, 243, 255, 0.3); position: relative; overflow: hidden; animation: address-holo 3s ease-in-out infinite; }
+        @keyframes address-holo { 0%, 100% { box-shadow: 0 0 20px rgba(0, 243, 255, 0.2); border-color: rgba(0, 243, 255, 0.3); } 50% { box-shadow: 0 0 40px rgba(0, 243, 255, 0.4); border-color: rgba(0, 243, 255, 0.6); } }
+        .payment-address::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(0, 243, 255, 0.2), transparent); animation: address-shine 2s linear infinite; }
+        @keyframes address-shine { to { left: 100%; } }
+        
+        .copy-btn { display: inline-flex; align-items: center; gap: 10px; margin-top: 16px; padding: 14px 28px; background: transparent; border: 1px solid var(--neon-cyan); border-radius: 10px; color: var(--neon-cyan); font-family: 'Rajdhani', sans-serif; font-size: 15px; font-weight: 700; letter-spacing: 3px; cursor: pointer; transition: all 0.3s ease; }
+        .copy-btn:hover { background: rgba(0, 243, 255, 0.15); box-shadow: 0 0 30px rgba(0, 243, 255, 0.4); transform: translateY(-2px); }
+        .copy-btn:active { transform: scale(0.95); }
+        .copy-btn.copied { background: rgba(0, 255, 136, 0.15); border-color: var(--neon-green); color: var(--neon-green); }
+        
+        .countdown { text-align: center; margin: 28px 0; }
+        .countdown-value { font-family: 'Orbitron', sans-serif; font-size: 52px; font-weight: 900; color: var(--neon-orange); text-shadow: 0 0 30px rgba(255, 107, 53, 0.8), 0 0 60px rgba(255, 107, 53, 0.4); letter-spacing: 6px; animation: countdown-blink 1s ease-in-out infinite; }
+        @keyframes countdown-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+        .countdown-label { font-size: 12px; color: var(--text-secondary); letter-spacing: 4px; text-transform: uppercase; margin-top: 8px; }
+        
+        .order-summary { background: linear-gradient(135deg, rgba(0, 243, 255, 0.06), rgba(176, 38, 255, 0.06)); border-radius: 20px; padding: 24px; margin: 24px 0; border: 1px solid rgba(0, 243, 255, 0.25); position: relative; overflow: hidden; }
+        .order-summary::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 2px; background: linear-gradient(90deg, transparent, var(--neon-cyan), var(--neon-pink), transparent); }
+        .order-item { display: flex; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.05); animation: order-item-in 0.4s ease-out backwards; }
+        .order-item:nth-child(1) { animation-delay: 0.1s; } .order-item:nth-child(2) { animation-delay: 0.2s; } .order-item:nth-child(3) { animation-delay: 0.3s; }
+        @keyframes order-item-in { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
+        .order-item:last-child { border-bottom: none; }
+        .order-label { color: var(--text-secondary); font-size: 14px; letter-spacing: 1px; }
+        .order-value { font-family: 'Rajdhani', sans-serif; font-weight: 700; color: var(--neon-cyan); letter-spacing: 1px; }
+        
+        .warning-box { background: rgba(255, 107, 53, 0.08); border: 1px solid rgba(255, 107, 53, 0.4); border-radius: 14px; padding: 18px; margin: 20px 0; font-size: 13px; color: var(--neon-orange); line-height: 1.8; position: relative; overflow: hidden; }
+        .warning-box::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: linear-gradient(180deg, var(--neon-orange), var(--neon-yellow)); box-shadow: 0 0 20px var(--neon-orange); }
+        
+        .cyber-footer { text-align: center; padding: 48px 20px; color: var(--text-secondary); font-size: 11px; letter-spacing: 3px; }
+        .cyber-footer .logo { font-family: 'Orbitron', sans-serif; font-size: 24px; font-weight: 900; background: linear-gradient(90deg, var(--neon-cyan), var(--neon-pink)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 16px; animation: logo-glow 2s ease-in-out infinite alternate; }
+        @keyframes logo-glow { from { filter: drop-shadow(0 0 10px var(--neon-cyan)); } to { filter: drop-shadow(0 0 30px var(--neon-pink)); } }
+        .cyber-footer .secure-badge { display: inline-flex; align-items: center; gap: 8px; margin-top: 12px; padding: 8px 16px; background: rgba(0, 255, 136, 0.08); border: 1px solid rgba(0, 255, 136, 0.3); border-radius: 20px; font-size: 10px; color: var(--neon-green); letter-spacing: 2px; }
+        
+        .payment-methods { display: flex; justify-content: center; gap: 40px; margin: 28px 0; }
+        .payment-method { text-align: center; transition: all 0.3s ease; }
+        .payment-method:hover { transform: translateY(-5px); }
+        .payment-icon { font-size: 40px; margin-bottom: 10px; filter: drop-shadow(0 0 15px currentColor); animation: icon-float 3s ease-in-out infinite; }
+        @keyframes icon-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        .payment-name { font-size: 11px; color: var(--text-secondary); letter-spacing: 2px; }
+        
+        .safe-area-bottom { padding-bottom: env(safe-area-inset-bottom, 20px); }
+        
+        /* 购买历史和用户追踪 */
+        .history-item { background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(0, 243, 255, 0.2); border-radius: 12px; padding: 16px; margin-bottom: 12px; animation: history-slide 0.4s ease-out backwards; }
+        @keyframes history-slide { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
+        .history-item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .history-order-id { font-family: 'Orbitron', monospace; font-size: 11px; color: var(--neon-cyan); }
+        .history-status { padding: 4px 10px; border-radius: 20px; font-size: 10px; font-weight: 700; letter-spacing: 1px; }
+        .history-status.completed { background: rgba(0, 255, 136, 0.2); color: var(--neon-green); border: 1px solid var(--neon-green); }
+        .history-status.pending { background: rgba(255, 107, 53, 0.2); color: var(--neon-orange); border: 1px solid var(--neon-orange); }
+        .history-item-body { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-secondary); }
+        .history-item-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255, 255, 255, 0.05); }
+        .history-price { font-family: 'Orbitron', sans-serif; font-size: 14px; color: var(--neon-green); }
+        
+        .user-panel { background: linear-gradient(135deg, rgba(176, 38, 255, 0.1), rgba(0, 243, 255, 0.1)); border: 1px solid rgba(176, 38, 255, 0.3); border-radius: 16px; padding: 20px; margin-bottom: 24px; display: none; align-items: center; gap: 16px; }
+        .user-avatar { width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, var(--neon-purple), var(--neon-cyan)); display: flex; align-items: center; justify-content: center; font-size: 24px; font-family: 'Orbitron', sans-serif; font-weight: 700; box-shadow: 0 0 20px rgba(176, 38, 255, 0.5); }
+        .user-info { flex: 1; }
+        .user-name { font-family: 'Rajdhani', sans-serif; font-size: 18px; font-weight: 700; color: var(--text-primary); }
+        .user-id { font-size: 11px; color: var(--text-secondary); font-family: 'Orbitron', monospace; }
+        .user-stats { text-align: right; }
+        .user-order-count { font-family: 'Orbitron', sans-serif; font-size: 20px; font-weight: 700; color: var(--neon-purple); }
+        .user-order-label { font-size: 10px; color: var(--text-secondary); letter-spacing: 1px; }
+        
+        .empty-state { text-align: center; padding: 40px 20px; color: var(--text-secondary); }
+        .empty-icon { font-size: 60px; margin-bottom: 16px; opacity: 0.5; }
+        .empty-text { font-size: 14px; letter-spacing: 1px; }
+        
+        .nav-btn { display: block; width: 100%; padding: 16px; margin-top: 16px; background: transparent; border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 12px; color: var(--text-secondary); font-family: 'Rajdhani', sans-serif; font-size: 14px; font-weight: 600; letter-spacing: 2px; cursor: pointer; transition: all 0.3s ease; }
+        .nav-btn:hover { border-color: var(--neon-cyan); color: var(--neon-cyan); background: rgba(0, 243, 255, 0.05); }
+        .page4-content { padding: 20px 0; }
     </style>
 </head>
 <body>
-    <!-- 背景光晕 -->
     <div class="bg-glow cyan"></div>
     <div class="bg-glow pink"></div>
-
-    <!-- 动态网格 -->
     <div class="cyber-grid"></div>
-
-    <!-- 数据流 -->
     <div class="data-stream" id="dataStream"></div>
-
-    <!-- 脉冲背景 -->
     <div class="pulse-bg"></div>
-
-    <!-- 扫描线 -->
     <div class="scanline"></div>
-
-    <!-- 浮动几何体 -->
     <div class="floating-shapes" id="floatingShapes"></div>
-
-    <!-- 加载动画 -->
+    
     <div class="loading-overlay" id="loadingOverlay">
         <div class="holo-spinner"></div>
         <div class="loading-text">처리 중...</div>
     </div>
-
-    <!-- 成功动画 -->
+    
     <div class="success-overlay" id="successOverlay">
-        <div class="holo-badge">
-            <div class="success-check">✓</div>
-        </div>
+        <div class="holo-badge"><div class="success-check">✓</div></div>
         <div class="success-title">결제 완료!</div>
-        <div class="success-subtitle">
-            계정 정보가 텔레그램 봇으로 전송됩니다.<br>
-            자동 발송까지 1-2분 소요됩니다.
-        </div>
+        <div class="success-subtitle">계정 정보가 텔레그램 봇으로 전송됩니다.<br>자동 발송까지 1-2분 소요됩니다.</div>
     </div>
-
+    
     <div class="app-container">
-        <!-- 步骤指示器 -->
         <div class="steps-indicator">
             <div class="step-node active" data-step="1"></div>
             <div class="step-node" data-step="2"></div>
             <div class="step-node" data-step="3"></div>
         </div>
-
-        <!-- 主菜单按钮 -->
-        <button class="nav-btn" onclick="showMyOrders()" style="margin-bottom: 20px; border-color: var(--neon-purple); color: var(--neon-purple);">
-            📦 나의 주문 보기
-        </button>
-
-        <!-- 页面 1: 商品选择 -->
+        
+        <button class="nav-btn" onclick="showMyOrders()" style="margin-bottom: 20px; border-color: var(--neon-purple); color: var(--neon-purple);">📦 나의 주문 보기</button>
+        
+        <!-- Page 1: Product Selection -->
         <div class="page active" id="page1">
             <div class="holo-header">
                 <div class="orbit-ring left"></div>
@@ -1701,167 +271,96 @@
                 <h1 class="holo-title glitch" data-text="NEBULA MARKET">NEBULA MARKET</h1>
                 <p class="holo-subtitle">quantum secure marketplace</p>
             </div>
-
             <div class="holo-card">
-                <h2 class="wave-title">
-                    <span class="icon">📱</span>
-                    <span class="text">텔레그램 계정</span>
-                    <span style="margin-left: auto; font-size: 11px; color: var(--neon-green); display: flex; align-items: center; gap: 6px;">
-                        <span style="width: 8px; height: 8px; background: var(--neon-green); border-radius: 50%; display: inline-block; animation: badge-pulse 1s infinite;"></span>
-                        ONLINE
-                    </span>
-                </h2>
+                <h2 class="wave-title"><span class="icon">📱</span><span class="text">텔레그램 계정</span><span style="margin-left: auto; font-size: 11px; color: var(--neon-green); display: flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; background: var(--neon-green); border-radius: 50%; display: inline-block; animation: badge-pulse 1s infinite;"></span>ONLINE</span></h2>
                 <div id="accountList"></div>
             </div>
-
             <div class="holo-card">
-                <h2 class="wave-title">
-                    <span class="icon">🔢</span>
-                    <span class="text">수량 선택</span>
-                </h2>
+                <h2 class="wave-title"><span class="icon">🔢</span><span class="text">수량 선택</span></h2>
                 <div class="qty-container">
                     <button class="qty-btn" onclick="changeQty(-1)">−</button>
                     <div class="qty-display" id="qtyDisplay">1</div>
                     <button class="qty-btn" onclick="changeQty(1)">+</button>
                 </div>
             </div>
-
             <div class="holo-price">
                 <div class="price-label">TOTAL AMOUNT</div>
-                <div class="price-value">
-                    <span id="totalPrice">5.00</span>
-                    <span class="price-unit">USDT</span>
-                </div>
+                <div class="price-value"><span id="totalPrice">5.00</span><span class="price-unit">USDT</span></div>
                 <div class="price-note">* 블록체인 검증: 변동폭 ±3%</div>
             </div>
-
-            <button class="neon-btn" onclick="goToPage(2)">
-                ⟩⟩ 결제하기
-            </button>
-
+            <button class="neon-btn" onclick="goToPage(2)">⟩⟩ 결제하기</button>
             <div class="cyber-footer safe-area-bottom">
                 <div class="logo">NEBULA MARKET</div>
                 <div>© 2024 QUANTUM SECURE MARKETPLACE</div>
-                <div class="secure-badge">
-                    <span>🔒</span>
-                    <span>TRON BLOCKCHAIN SECURED</span>
-                </div>
+                <div class="secure-badge"><span>🔒</span><span>TRON BLOCKCHAIN SECURED</span></div>
             </div>
         </div>
-
-        <!-- 页面 2: 支付 -->
+        
+        <!-- Page 2: Payment -->
         <div class="page" id="page2">
             <div class="holo-card">
-                <h2 class="wave-title">
-                    <span class="icon">💎</span>
-                    <span class="text">결제 방법</span>
-                </h2>
-                
-                <div class="warning-box">
-                    ⚠️ 다음 지갑 주소로 결제를 진행해주세요.<br>
-                    결제는 30분 이내에 완료해주세요.
-                </div>
-
+                <h2 class="wave-title"><span class="icon">💎</span><span class="text">결제 방법</span></h2>
+                <div class="warning-box">⚠️ 다음 지갑 주소로 결제를 진행해주세요.<br>결제는 30분 이내에 완료해주세요.</div>
                 <div class="holo-price">
                     <div class="price-label">PAYMENT AMOUNT</div>
-                    <div class="price-value">
-                        <span id="payPrice">5.00</span>
-                        <span class="price-unit">USDT</span>
-                    </div>
+                    <div class="price-value"><span id="payPrice">5.00</span><span class="price-unit">USDT</span></div>
                 </div>
-
-                <div class="countdown">
-                    <div class="countdown-value" id="countdown">30:00</div>
-                    <div class="countdown-label">결제 마감 시간</div>
-                </div>
-
-                <div class="payment-address" id="walletAddress">
-                    TWk75rL7Y7yS2eLZhLEpA7UeVVWpTJTih4
-                </div>
-                <div style="text-align: center;">
-                    <button class="copy-btn" onclick="copyAddress()">
-                        📋 주소 복사
-                    </button>
-                </div>
-
+                <div class="countdown"><div class="countdown-value" id="countdown">30:00</div><div class="countdown-label">결제 마감 시간</div></div>
+                <div class="payment-address" id="walletAddress">TWk75rL7Y7yS2eLZhLEpA7UeVVWpTJTih4</div>
+                <div style="text-align: center;"><button class="copy-btn" onclick="copyAddress()">📋 주소 복사</button></div>
                 <div class="payment-methods">
-                    <div class="payment-method">
-                        <div class="payment-icon" style="color: var(--neon-green);">💎</div>
-                        <div class="payment-name">USDT (TRC20)</div>
-                    </div>
-                    <div class="payment-method">
-                        <div class="payment-icon" style="color: var(--neon-cyan);">⚡</div>
-                        <div class="payment-name">TRX</div>
-                    </div>
+                    <div class="payment-method"><div class="payment-icon" style="color: var(--neon-green);">💎</div><div class="payment-name">USDT (TRC20)</div></div>
+                    <div class="payment-method"><div class="payment-icon" style="color: var(--neon-cyan);">⚡</div><div class="payment-name">TRX</div></div>
                 </div>
             </div>
-
-            <button class="neon-btn green" onclick="confirmPayment()">
-                ✓ 결제 완료
-            </button>
-
-            <button class="neon-btn" style="margin-top: 12px; border-color: rgba(255,255,255,0.2); color: var(--text-secondary);" onclick="goToPage(1)">
-                ⟨ ⟨ 뒤로가기
-            </button>
-
-            <div class="cyber-footer safe-area-bottom">
-                <div style="font-size: 10px;">🔒 TRON BLOCKCHAIN 100% SECURE PAYMENT</div>
-            </div>
+            <button class="neon-btn green" onclick="confirmPayment()">✓ 결제 완료</button>
+            <button class="neon-btn" style="margin-top: 12px; border-color: rgba(255,255,255,0.2); color: var(--text-secondary);" onclick="goToPage(1)">⟨ ⟨ 뒤로가기</button>
+            <div class="cyber-footer safe-area-bottom"><div style="font-size: 10px;">🔒 TRON BLOCKCHAIN 100% SECURE PAYMENT</div></div>
         </div>
-
-        <!-- 页面 3: 确认 -->
+        
+        <!-- Page 3: Confirmation -->
         <div class="page" id="page3">
             <div class="holo-card">
-                <h2 class="wave-title">
-                    <span class="icon">📡</span>
-                    <span class="text">결제 확인 중</span>
-                </h2>
-                
+                <h2 class="wave-title"><span class="icon">📡</span><span class="text">결제 확인 중</span></h2>
                 <div style="text-align: center; padding: 50px 0;">
                     <div style="font-size: 90px; animation: icon-float 2s ease-in-out infinite;">🌐</div>
-                    <div style="margin-top: 28px; font-family: 'Orbitron'; font-size: 15px; letter-spacing: 3px; color: var(--neon-cyan);">
-                        블록체인 확인 중...
-                    </div>
-                    <div style="margin-top: 14px; font-size: 13px; color: var(--text-secondary);">
-                        1-3분 소요됩니다
-                    </div>
+                    <div style="margin-top: 28px; font-family: 'Orbitron'; font-size: 15px; letter-spacing: 3px; color: var(--neon-cyan);">블록체인 확인 중...</div>
+                    <div style="margin-top: 14px; font-size: 13px; color: var(--text-secondary);">1-3분 소요됩니다</div>
                 </div>
-
                 <div style="height: 2px; background: linear-gradient(90deg, transparent, var(--neon-cyan), var(--neon-pink), transparent); margin: 28px 0;"></div>
-
-                <div style="text-align: center; padding: 20px;">
-                    <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 10px; letter-spacing: 3px;">ORDER ID</div>
-                    <div style="font-family: 'Orbitron'; font-size: 16px; background: rgba(0,243,255,0.08); padding: 14px 24px; border-radius: 10px; display: inline-block; border: 1px solid rgba(0,243,255,0.3); color: var(--neon-cyan);" id="orderId">
-                        ORD-XXXXXXXX
-                    </div>
-                </div>
+                <div style="text-align: center; padding: 20px;"><div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 10px; letter-spacing: 3px;">ORDER ID</div><div style="font-family: 'Orbitron'; font-size: 16px; background: rgba(0,243,255,0.08); padding: 14px 24px; border-radius: 10px; display: inline-block; border: 1px solid rgba(0,243,255,0.3); color: var(--neon-cyan);" id="orderId">ORD-XXXXXXXX</div></div>
             </div>
-
             <div class="holo-card">
-                <h2 class="wave-title">
-                    <span class="icon">📋</span>
-                    <span class="text">주문 요약</span>
-                </h2>
+                <h2 class="wave-title"><span class="icon">📋</span><span class="text">주문 요약</span></h2>
                 <div class="order-summary" id="orderSummary"></div>
             </div>
-
-            <div class="cyber-footer safe-area-bottom">
-                <div style="font-size: 11px;">자동으로 결제가 확인되면 계정 정보가 텔레그램으로 발송됩니다</div>
+            <div class="cyber-footer safe-area-bottom"><div style="font-size: 11px;">자동으로 결제가 확인되면 계정 정보가 텔레그램으로 발송됩니다</div></div>
+        </div>
+        
+        <!-- Page 4: My Orders -->
+        <div class="page" id="page4">
+            <div class="holo-header">
+                <h1 class="holo-title glitch" data-text="MY ORDERS">MY ORDERS</h1>
+                <p class="holo-subtitle">purchase history</p>
             </div>
+            <div id="userPanel" class="user-panel">
+                <div class="user-avatar" id="userAvatar">U</div>
+                <div class="user-info"><div class="user-name" id="userName">User</div><div class="user-id" id="userId">ID: 000000000</div></div>
+                <div class="user-stats"><div class="user-order-count" id="orderCount">0</div><div class="user-order-label">ORDERS</div></div>
+            </div>
+            <div class="holo-card page4-content">
+                <h2 class="wave-title"><span class="icon">📦</span><span class="text">주문 내역</span></h2>
+                <div id="orderHistoryList"></div>
+                <div id="emptyHistory" class="empty-state" style="display: none;"><div class="empty-icon">📭</div><div class="empty-text">아직 주문이 없습니다</div></div>
+            </div>
+            <button class="nav-btn" onclick="goToPage(1)">⟨ ⟨ 계속 쇼핑하기</button>
+            <div class="cyber-footer safe-area-bottom"><div class="logo">NEBULA MARKET</div><div class="secure-badge"><span>🔒</span><span>ALL ORDERS SECURELY STORED</span></div></div>
         </div>
     </div>
 
     <script>
-        // 全局变量
-        let selectedAccount = null;
-        let quantity = 1;
-        let basePrice = 5.00;
-        let countdownTimer = null;
-        let orderId = '';
-        let telegramUser = null;
-        let orderHistory = [];
-
-        // 账户数据
+        let selectedAccount = null, quantity = 1, basePrice = 5.00, countdownTimer = null, orderId = '', telegramUser = null, orderHistory = [];
+        
         const accounts = [
             { id: 'ACC001', country: '한국', flag: '🇰🇷', phone: '+937****0036', stock: 3 },
             { id: 'ACC002', country: '미국', flag: '🇺🇸', phone: '+181****3810', stock: 5 },
@@ -1870,374 +369,144 @@
             { id: 'ACC005', country: '필리핀', flag: '🇵🇭', phone: '+639****7909', stock: 3 },
             { id: 'ACC006', country: '나이지리아', flag: '🇳🇬', phone: '+234****4639', stock: 4 },
         ];
-
-        // 初始化
+        
         document.addEventListener('DOMContentLoaded', function() {
-            renderAccounts();
-            initDataStream();
-            initFloatingShapes();
-            initCountdown();
-            loadTelegramUser();
-            loadOrderHistory();
+            renderAccounts(); initDataStream(); initFloatingShapes(); initCountdown();
+            loadTelegramUser(); loadOrderHistory();
         });
-
-        // 渲染账户列表
+        
         function renderAccounts() {
-            const container = document.getElementById('accountList');
-            container.innerHTML = accounts.map((account, index) => `
-                <div class="account-card" onclick="selectAccount('${account.id}')" id="card-${account.id}" style="animation-delay: ${index * 0.08}s">
-                    <div class="account-header">
-                        <div class="account-country">
-                            <span class="country-flag">${account.flag}</span>
-                            <span class="country-name">${account.country}</span>
-                        </div>
-                        <div class="stock-badge">STK ${account.stock}</div>
-                    </div>
-                    <div class="account-info">
-                        <div>
-                            <div style="font-size: 10px; color: var(--text-secondary); margin-bottom: 4px; letter-spacing: 2px;">PHONE NUMBER</div>
-                            <div class="account-phone">${account.phone}</div>
-                        </div>
-                        <div style="text-align: right;">
-                            <div style="font-size: 10px; color: var(--text-secondary); margin-bottom: 4px; letter-spacing: 2px;">PRICE</div>
-                            <div class="account-price">${basePrice.toFixed(2)} <span style="font-size: 12px;">USDT</span></div>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
+            document.getElementById('accountList').innerHTML = accounts.map((a, i) => `
+                <div class="account-card" onclick="selectAccount('${a.id}')" id="card-${a.id}" style="animation-delay: ${i * 0.08}s">
+                    <div class="account-header"><div class="account-country"><span class="country-flag">${a.flag}</span><span class="country-name">${a.country}</span></div><div class="stock-badge">STK ${a.stock}</div></div>
+                    <div class="account-info"><div><div style="font-size: 10px; color: var(--text-secondary); margin-bottom: 4px; letter-spacing: 2px;">PHONE NUMBER</div><div class="account-phone">${a.phone}</div></div><div style="text-align: right;"><div style="font-size: 10px; color: var(--text-secondary); margin-bottom: 4px; letter-spacing: 2px;">PRICE</div><div class="account-price">${basePrice.toFixed(2)} <span style="font-size: 12px;">USDT</span></div></div></div>
+                </div>`).join('');
         }
-
-        // 数据流效果
+        
         function initDataStream() {
-            const container = document.getElementById('dataStream');
-            const chars = '01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン';
-            
+            const c = document.getElementById('dataStream'), chars = '01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン';
             for (let i = 0; i < 15; i++) {
-                const col = document.createElement('div');
-                col.className = 'data-stream-col';
-                col.style.left = Math.random() * 100 + '%';
-                col.style.animationDuration = (Math.random() * 15 + 10) + 's';
-                col.style.animationDelay = Math.random() * 10 + 's';
-                
-                let text = '';
-                for (let j = 0; j < 50; j++) {
-                    text += chars[Math.floor(Math.random() * chars.length)] + '<br>';
-                }
-                col.innerHTML = text;
-                container.appendChild(col);
+                const col = document.createElement('div'); col.className = 'data-stream-col';
+                col.style.left = Math.random() * 100 + '%'; col.style.animationDuration = (Math.random() * 15 + 10) + 's'; col.style.animationDelay = Math.random() * 10 + 's';
+                let text = ''; for (let j = 0; j < 50; j++) text += chars[Math.floor(Math.random() * chars.length)] + '<br>';
+                col.innerHTML = text; c.appendChild(col);
             }
         }
-
-        // 浮动几何体
+        
         function initFloatingShapes() {
-            const container = document.getElementById('floatingShapes');
-            const shapes = ['diamond', 'circle', 'triangle', 'hexagon'];
-            const colors = ['var(--neon-cyan)', 'var(--neon-pink)', 'var(--neon-purple)', 'var(--neon-green)'];
-            
+            const c = document.getElementById('floatingShapes'), shapes = ['diamond', 'circle', 'triangle', 'hexagon'];
             for (let i = 0; i < 12; i++) {
-                const shape = document.createElement('div');
-                const type = shapes[Math.floor(Math.random() * shapes.length)];
-                shape.className = `shape ${type}`;
-                shape.style.left = Math.random() * 100 + '%';
-                shape.style.animationDuration = (Math.random() * 10 + 15) + 's';
-                shape.style.animationDelay = Math.random() * 10 + 's';
-                container.appendChild(shape);
+                const s = document.createElement('div'); s.className = `shape ${shapes[Math.floor(Math.random() * shapes.length)]}`;
+                s.style.left = Math.random() * 100 + '%'; s.style.animationDuration = (Math.random() * 10 + 15) + 's'; s.style.animationDelay = Math.random() * 10 + 's';
+                c.appendChild(s);
             }
         }
-
-        // 选择账户
+        
         function selectAccount(id) {
-            document.querySelectorAll('.account-card').forEach(card => {
-                card.classList.remove('selected');
-            });
-            
-            const card = document.getElementById('card-' + id);
-            card.classList.add('selected');
-            card.style.transform = 'scale(1.02)';
-            setTimeout(() => card.style.transform = '', 200);
-            
-            selectedAccount = accounts.find(a => a.id === id);
-            updatePrice();
+            document.querySelectorAll('.account-card').forEach(c => c.classList.remove('selected'));
+            document.getElementById('card-' + id).classList.add('selected');
+            selectedAccount = accounts.find(a => a.id === id); updatePrice();
         }
-
-        // 更改数量
-        function changeQty(delta) {
-            quantity = Math.max(1, Math.min(3, quantity + delta));
-            const display = document.getElementById('qtyDisplay');
-            display.textContent = quantity;
-            display.style.transform = 'scale(1.4)';
-            setTimeout(() => display.style.transform = '', 150);
-            updatePrice();
+        
+        function changeQty(d) {
+            quantity = Math.max(1, Math.min(3, quantity + d));
+            const el = document.getElementById('qtyDisplay'); el.textContent = quantity; el.style.transform = 'scale(1.4)';
+            setTimeout(() => el.style.transform = '', 150); updatePrice();
         }
-
-        // 更新价格
+        
         function updatePrice() {
-            let price = basePrice * quantity;
-            const randomFactor = 1 + (Math.random() * 0.029);
-            price = price * randomFactor;
-            
-            document.getElementById('totalPrice').textContent = price.toFixed(2);
-            document.getElementById('payPrice').textContent = price.toFixed(2);
+            let p = basePrice * quantity * (1 + Math.random() * 0.029);
+            document.getElementById('totalPrice').textContent = p.toFixed(2); document.getElementById('payPrice').textContent = p.toFixed(2);
         }
-
-        // 页面切换
-        function goToPage(pageNum) {
-            if (pageNum === 2 && !selectedAccount) {
-                showLoading('계정을 선택해주세요');
-                setTimeout(hideLoading, 1500);
-                return;
-            }
-            
-            document.querySelectorAll('.page').forEach(page => {
-                page.classList.remove('active');
-            });
-            
-            document.getElementById('page' + pageNum).classList.add('active');
-            
-            // 更新步骤指示器
-            document.querySelectorAll('.step-node').forEach((node, index) => {
-                node.classList.remove('active', 'completed');
-                if (index < pageNum - 1) {
-                    node.classList.add('completed');
-                } else if (index === pageNum - 1) {
-                    node.classList.add('active');
-                }
-            });
-            
-            if (pageNum === 2) {
-                startCountdown();
-                updateOrderSummary();
-            }
-            
+        
+        function goToPage(n) {
+            if (n === 2 && !selectedAccount) { showLoading('계정을 선택해주세요'); setTimeout(hideLoading, 1500); return; }
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById('page' + n).classList.add('active');
+            document.querySelectorAll('.step-node').forEach((node, i) => { node.classList.remove('active', 'completed'); if (i < n - 1) node.classList.add('completed'); else if (i === n - 1) node.classList.add('active'); });
+            if (n === 2) { startCountdown(); updateOrderSummary(); }
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
-
-        // 更新订单摘要
+        
         function updateOrderSummary() {
             if (!selectedAccount) return;
-            
-            const price = parseFloat(document.getElementById('totalPrice').textContent);
-            const container = document.getElementById('orderSummary');
-            container.innerHTML = `
-                <div class="order-item">
-                    <span class="order-label">계정</span>
-                    <span class="order-value">${selectedAccount.flag} ${selectedAccount.country}</span>
-                </div>
-                <div class="order-item">
-                    <span class="order-label">수량</span>
-                    <span class="order-value">${quantity}개</span>
-                </div>
-                <div class="order-item">
-                    <span class="order-label">총액</span>
-                    <span class="order-value" style="color: var(--neon-green);">${price.toFixed(2)} USDT</span>
-                </div>
-            `;
+            const p = parseFloat(document.getElementById('totalPrice').textContent);
+            document.getElementById('orderSummary').innerHTML = `
+                <div class="order-item"><span class="order-label">계정</span><span class="order-value">${selectedAccount.flag} ${selectedAccount.country}</span></div>
+                <div class="order-item"><span class="order-label">수량</span><span class="order-value">${quantity}개</span></div>
+                <div class="order-item"><span class="order-label">총액</span><span class="order-value" style="color: var(--neon-green);">${p.toFixed(2)} USDT</span></div>`;
         }
-
-        // 倒计时
+        
         function initCountdown() {
             countdownTimer = setInterval(() => {
-                const now = new Date();
-                const seconds = now.getSeconds();
-                const remaining = 60 - seconds;
-                document.getElementById('countdown').textContent = 
-                    `30:${remaining.toString().padStart(2, '0')}`;
+                const s = 60 - new Date().getSeconds();
+                document.getElementById('countdown').textContent = `30:${s.toString().padStart(2, '0')}`;
             }, 1000);
         }
-
-        function startCountdown() {
-            if (countdownTimer) clearInterval(countdownTimer);
-            initCountdown();
-        }
-
-        // 复制地址
+        
+        function startCountdown() { if (countdownTimer) clearInterval(countdownTimer); initCountdown(); }
+        
         function copyAddress() {
-            const address = document.getElementById('walletAddress').textContent.trim();
-            navigator.clipboard.writeText(address).then(() => {
-                const btn = document.querySelector('.copy-btn');
-                btn.innerHTML = '✓ 복사 완료!';
-                btn.classList.add('copied');
-                
-                setTimeout(() => {
-                    btn.innerHTML = '📋 주소 복사';
-                    btn.classList.remove('copied');
-                }, 2000);
+            const addr = document.getElementById('walletAddress').textContent.trim();
+            navigator.clipboard.writeText(addr).then(() => {
+                const btn = document.querySelector('.copy-btn'); btn.innerHTML = '✓ 복사 완료!'; btn.classList.add('copied');
+                setTimeout(() => { btn.innerHTML = '📋 주소 복사'; btn.classList.remove('copied'); }, 2000);
             });
         }
-
-        // 确认支付
+        
         function confirmPayment() {
             showLoading('결제를 확인하는 중...');
-            
             orderId = 'ORD-' + Date.now().toString().slice(-8);
             document.getElementById('orderId').textContent = orderId;
-            
-            setTimeout(() => {
-                hideLoading();
-                goToPage(3);
-                
-                setTimeout(() => {
-                    showSuccess();
-                }, 3500);
-            }, 2200);
+            setTimeout(() => { hideLoading(); goToPage(3); setTimeout(() => showSuccess(), 3500); }, 2200);
         }
-
-        // 显示成功
+        
         function showSuccess() {
             document.getElementById('successOverlay').classList.add('show');
-            
-            // 保存订单到历史
             const price = document.getElementById('totalPrice').textContent;
-            const order = {
-                orderId: orderId,
-                account: selectedAccount,
-                quantity: quantity,
-                price: price,
-                date: new Date().toLocaleString('ko-KR'),
-                status: 'pending',
-                flag: selectedAccount.flag,
-                country: selectedAccount.country
-            };
-            saveOrder(order);
-            
-            if (window.Telegram && window.Telegram.WebApp) {
-                window.Telegram.WebApp.sendData(JSON.stringify({
-                    orderId: orderId,
-                    account: selectedAccount,
-                    quantity: quantity,
-                    price: price
-                }));
-            }
-            
-            setTimeout(() => {
-                document.getElementById('successOverlay').classList.remove('show');
-                goToPage(1);
-                resetForm();
-            }, 4500);
+            saveOrder({ orderId, account: selectedAccount, quantity, price, date: new Date().toLocaleString('ko-KR'), status: 'pending', flag: selectedAccount.flag, country: selectedAccount.country });
+            if (window.Telegram && window.Telegram.WebApp) { window.Telegram.WebApp.sendData(JSON.stringify({ orderId, account: selectedAccount, quantity, price })); }
+            setTimeout(() => { document.getElementById('successOverlay').classList.remove('show'); goToPage(1); resetForm(); }, 4500);
         }
-
-        // 加载动画
-        function showLoading(text) {
-            document.querySelector('.loading-text').textContent = text;
-            document.getElementById('loadingOverlay').classList.add('show');
-        }
-
-        function hideLoading() {
-            document.getElementById('loadingOverlay').classList.remove('show');
-        }
-
-        // 重置表单
+        
+        function showLoading(t) { document.querySelector('.loading-text').textContent = t; document.getElementById('loadingOverlay').classList.add('show'); }
+        function hideLoading() { document.getElementById('loadingOverlay').classList.remove('show'); }
         function resetForm() {
-            selectedAccount = null;
-            quantity = 1;
-            document.getElementById('qtyDisplay').textContent = '1';
-            document.querySelectorAll('.account-card').forEach(card => {
-                card.classList.remove('selected');
-            });
-            updatePrice();
-            
-            document.querySelectorAll('.step-node').forEach((node, index) => {
-                node.classList.remove('active', 'completed');
-                if (index === 0) node.classList.add('active');
-            });
+            selectedAccount = null; quantity = 1; document.getElementById('qtyDisplay').textContent = '1';
+            document.querySelectorAll('.account-card').forEach(c => c.classList.remove('selected')); updatePrice();
+            document.querySelectorAll('.step-node').forEach((n, i) => { n.classList.remove('active', 'completed'); if (i === 0) n.classList.add('active'); });
         }
-
-        // Telegram WebApp 初始化
-        if (window.Telegram && window.Telegram.WebApp) {
-            const tg = window.Telegram.WebApp;
-            tg.ready();
-            tg.expand();
-            tg.setHeaderColor('#050508');
-            tg.setBackgroundColor('#050508');
-            
-            // 获取用户信息
-            telegramUser = tg.initDataUnsafe?.user || tg.initData?.user;
-            if (telegramUser) {
-                updateUserPanel();
-            }
-        }
-
-        // 更新用户面板
+        
+        function loadTelegramUser() { if (window.Telegram && window.Telegram.WebApp) { telegramUser = window.Telegram.WebApp.initDataUnsafe?.user || window.Telegram.WebApp.initData?.user; } }
+        function loadOrderHistory() { const s = localStorage.getItem('nebula_orders'); if (s) orderHistory = JSON.parse(s); }
+        function saveOrder(o) { orderHistory.unshift(o); localStorage.setItem('nebula_orders', JSON.stringify(orderHistory)); if (telegramUser) document.getElementById('orderCount').textContent = orderHistory.length; }
+        
         function updateUserPanel() {
             if (!telegramUser) return;
-            
-            const panel = document.getElementById('userPanel');
-            const avatar = document.getElementById('userAvatar');
-            const name = document.getElementById('userName');
-            const id = document.getElementById('userId');
-            const count = document.getElementById('orderCount');
-            
-            const firstName = telegramUser.first_name || 'User';
-            const lastName = telegramUser.last_name || '';
-            const userId = telegramUser.id || '000000000';
-            
-            avatar.textContent = firstName.charAt(0).toUpperCase();
-            name.textContent = `${firstName} ${lastName}`.trim();
-            id.textContent = `ID: ${userId}`;
-            count.textContent = orderHistory.length;
-            
-            panel.style.display = 'flex';
+            const fn = telegramUser.first_name || 'User', ln = telegramUser.last_name || '', uid = telegramUser.id || '000000000';
+            document.getElementById('userAvatar').textContent = fn.charAt(0).toUpperCase();
+            document.getElementById('userName').textContent = `${fn} ${ln}`.trim();
+            document.getElementById('userId').textContent = `ID: ${uid}`;
+            document.getElementById('orderCount').textContent = orderHistory.length;
+            document.getElementById('userPanel').style.display = 'flex';
         }
-
-        // 加载用户信息
-        function loadTelegramUser() {
-            if (window.Telegram && window.Telegram.WebApp) {
-                const tg = window.Telegram.WebApp;
-                telegramUser = tg.initDataUnsafe?.user || tg.initData?.user;
-            }
-        }
-
-        // 加载购买历史
-        function loadOrderHistory() {
-            const stored = localStorage.getItem('nebula_orders');
-            if (stored) {
-                orderHistory = JSON.parse(stored);
-            }
-        }
-
-        // 保存订单
-        function saveOrder(order) {
-            orderHistory.unshift(order);
-            localStorage.setItem('nebula_orders', JSON.stringify(orderHistory));
-            if (telegramUser) {
-                document.getElementById('orderCount').textContent = orderHistory.length;
-            }
-        }
-
-        // 显示我的订单
-        function showMyOrders() {
-            renderOrderHistory();
-            goToPage(4);
-        }
-
-        // 渲染订单历史
+        
+        function showMyOrders() { renderOrderHistory(); goToPage(4); }
         function renderOrderHistory() {
-            const container = document.getElementById('orderHistoryList');
-            const emptyState = document.getElementById('emptyHistory');
-            
-            if (orderHistory.length === 0) {
-                container.innerHTML = '';
-                emptyState.style.display = 'block';
-                return;
-            }
-            
-            emptyState.style.display = 'none';
-            container.innerHTML = orderHistory.map((order, index) => `
-                <div class="history-item" style="animation-delay: ${index * 0.1}s">
-                    <div class="history-item-header">
-                        <span class="history-order-id">${order.orderId}</span>
-                        <span class="history-status ${order.status}">${order.status === 'completed' ? '완료' : '대기중'}</span>
-                    </div>
-                    <div class="history-item-body">
-                        <span>${order.flag} ${order.country}</span>
-                        <span>${order.quantity}개</span>
-                    </div>
-                    <div class="history-item-footer">
-                        <span style="font-size: 11px; color: var(--text-secondary);">${order.date}</span>
-                        <span class="history-price">${order.price} USDT</span>
-                    </div>
-                </div>
-            `).join('');
+            const c = document.getElementById('orderHistoryList'), e = document.getElementById('emptyHistory');
+            if (orderHistory.length === 0) { c.innerHTML = ''; e.style.display = 'block'; return; }
+            e.style.display = 'none';
+            c.innerHTML = orderHistory.map((o, i) => `
+                <div class="history-item" style="animation-delay: ${i * 0.1}s">
+                    <div class="history-item-header"><span class="history-order-id">${o.orderId}</span><span class="history-status ${o.status}">${o.status === 'completed' ? '완료' : '대기중'}</span></div>
+                    <div class="history-item-body"><span>${o.flag} ${o.country}</span><span>${o.quantity}개</span></div>
+                    <div class="history-item-footer"><span style="font-size: 11px; color: var(--text-secondary);">${o.date}</span><span class="history-price">${o.price} USDT</span></div>
+                </div>`).join('');
+        }
+        
+        if (window.Telegram && window.Telegram.WebApp) {
+            const tg = window.Telegram.WebApp; tg.ready(); tg.expand(); tg.setHeaderColor('#050508'); tg.setBackgroundColor('#050508');
+            telegramUser = tg.initDataUnsafe?.user || tg.initData?.user; if (telegramUser) updateUserPanel();
         }
     </script>
 </body>
