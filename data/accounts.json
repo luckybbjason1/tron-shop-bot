@@ -1,0 +1,38 @@
+{
+  "accounts": [
+    {
+      "type": "telegram_basic",
+      "username": "testuser1",
+      "phone": "+821012345678",
+      "verify_link": "https://jiema.didiapi.uk/getcode?id=test123",
+      "description": "테스트 계정",
+      "id": "ACC1788759460178",
+      "status": "available"
+    },
+    {
+      "type": "telegram_basic",
+      "username": "@user2",
+      "phone": "+1234567890",
+      "verify_link": "https://jiema.didiapi.uk/getcode?id=test2",
+      "id": "ACC2",
+      "status": "available"
+    },
+    {
+      "type": "telegram_premium",
+      "username": "@user3",
+      "phone": "+919876543210",
+      "verify_link": "https://jiema.didiapi.uk/getcode?id=test3",
+      "id": "ACC3",
+      "status": "available"
+    },
+    {
+      "type": "instagram_basic",
+      "username": "@insta_user",
+      "phone": "+84987654321",
+      "verify_link": "https://jiema.didiapi.uk/getcode?id=test4",
+      "id": "ACC4",
+      "status": "available"
+    }
+  ],
+  "orders": []
+}
