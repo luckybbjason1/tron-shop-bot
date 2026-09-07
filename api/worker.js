@@ -1,16 +1,22 @@
-// Cloudflare Workers - TRON Shop API
-const PRODUCTS = [
-  {id:1, name:"一般 텔레그램 계정", price_trx:50, price_usdt:10, stock:50, icon:"📱", desc:"생성일 1년 이상, 전화번호 검증 완료 계정"},
-  {id:2, name:"프리미엄 텔레그램 계정", price_trx:150, price_usdt:30, stock:20, icon:"⭐", desc:"생성일 3년 이상, 고급 프로필, 검증 완료"},
-  {id:3, name:"텔레그램 채널 계정", price_trx:80, price_usdt:15, stock:15, icon:"📢", desc:"가입자 1000명 이상 채널 소유 계정"},
-  {id:4, name:"인스타그램 계정", price_trx:100, price_usdt:20, stock:30, icon:"📷", desc:"팔로워 5000명 이상, 활동적인 계정"},
-  {id:5, name:"인스타그램 프리미엄", price_trx:200, price_usdt:40, stock:10, icon:"💎", desc:"팔로워 2만 명 이상, 업계 인증 계정"},
-  {id:6, name:"페이스북 계정", price_trx:60, price_usdt:12, stock:40, icon:"📘", desc:"실명 프로필, 친구 1000명 이상"},
-  {id:7, name:"페이스북 비즈니스 계정", price_trx:120, price_usdt:24, stock:15, icon:"🏢", desc:"비즈니스 인증, 광고주 계정"}
-];
-
+// Cloudflare Workers - TRON Shop API v3
 const WALLET = "TWk75rL7Y7yS2eLZhLEpA7UeVVWpTJTih4";
+const ADMIN_IDS = ["8427378474", "8733970362"];
+
+// 账号库存 - 管理员上传的账号
+let accountInventory = [];
+// 订单存储
 let orders = {};
+
+// 基础价格表（每账号）
+const BASE_PRICES = {
+  telegram_basic: { trx: 50, usdt: 10 },
+  telegram_premium: { trx: 150, usdt: 30 },
+  telegram_channel: { trx: 80, usdt: 15 },
+  instagram_basic: { trx: 100, usdt: 20 },
+  instagram_premium: { trx: 200, usdt: 40 },
+  facebook_basic: { trx: 60, usdt: 12 },
+  facebook_business: { trx: 120, usdt: 24 }
+};
 
 function response(data, status=200) {
   return new Response(JSON.stringify(data), {
@@ -24,6 +30,14 @@ function response(data, status=200) {
   });
 }
 
+// 计算价格（带随机波动 1.001~1.03 倍）
+function calculatePrice(basePrice, quantity) {
+  const variance = 1.001 + Math.random() * 0.029; // 1.001 ~ 1.03
+  const trx = Math.round(basePrice.trx * quantity * variance);
+  const usdt = Math.round(basePrice.usdt * quantity * variance * 100) / 100;
+  return { trx, usdt };
+}
+
 async function handleRequest(request) {
   const url = new URL(request.url);
   const path = url.pathname;
@@ -33,51 +47,217 @@ async function handleRequest(request) {
     return response({ok: true});
   }
   
-  // API endpoints
+  // 健康检查
   if (path === '/api/health') {
     return response({status: 'ok', timestamp: new Date().toISOString()});
   }
   
-  if (path === '/api/products') {
-    return response({products: PRODUCTS});
+  // 获取账号列表
+  if (path === '/api/accounts') {
+    return response({accounts: accountInventory});
   }
   
+  // 管理员：添加账号
+  if (path === '/api/admin/add-account') {
+    const userId = request.headers.get('X-User-Id');
+    if (!ADMIN_IDS.includes(userId)) {
+      return response({error: 'Unauthorized'}, 401);
+    }
+    if (request.method !== 'POST') {
+      return response({error: 'Method not allowed'}, 405);
+    }
+    const body = await request.json();
+    const accountId = 'ACC' + Date.now() + Math.random().toString(36).substr(2, 4).toUpperCase();
+    const account = {
+      id: accountId,
+      type: body.type || 'telegram_basic',
+      username: body.username || '未知',
+      password: body.password || '未知',
+      email: body.email || '无',
+      phone: body.phone || '无',
+      description: body.description || '',
+      created_at: new Date().toISOString(),
+      status: 'available', // available, sold
+      sold_to: null
+    };
+    accountInventory.push(account);
+    return response({success: true, account});
+  }
+  
+  // 管理员：批量添加账号
+  if (path === '/api/admin/batch-add') {
+    const userId = request.headers.get('X-User-Id');
+    if (!ADMIN_IDS.includes(userId)) {
+      return response({error: 'Unauthorized'}, 401);
+    }
+    if (request.method !== 'POST') {
+      return response({error: 'Method not allowed'}, 405);
+    }
+    const body = await request.json();
+    const accounts = body.accounts || [];
+    const added = [];
+    for (const acc of accounts) {
+      const accountId = 'ACC' + Date.now() + Math.random().toString(36).substr(2, 4).toUpperCase();
+      added.push({
+        id: accountId,
+        type: acc.type,
+        username: acc.username,
+        password: acc.password,
+        email: acc.email || '无',
+        phone: acc.phone || '无',
+        description: acc.description || '',
+        created_at: new Date().toISOString(),
+        status: 'available',
+        sold_to: null
+      });
+    }
+    accountInventory.push(...added);
+    return response({success: true, count: added.length});
+  }
+  
+  // 管理员：删除账号
+  if (path === '/api/admin/delete-account') {
+    const userId = request.headers.get('X-User-Id');
+    if (!ADMIN_IDS.includes(userId)) {
+      return response({error: 'Unauthorized'}, 401);
+    }
+    if (request.method !== 'POST') {
+      return response({error: 'Method not allowed'}, 405);
+    }
+    const body = await request.json();
+    const index = accountInventory.findIndex(a => a.id === body.account_id);
+    if (index !== -1) {
+      accountInventory.splice(index, 1);
+      return response({success: true});
+    }
+    return response({error: 'Not found'}, 404);
+  }
+  
+  // 管理员：获取库存统计
+  if (path === '/api/admin/stats') {
+    const userId = request.headers.get('X-User-Id');
+    if (!ADMIN_IDS.includes(userId)) {
+      return response({error: 'Unauthorized'}, 401);
+    }
+    const available = accountInventory.filter(a => a.status === 'available').length;
+    const sold = accountInventory.filter(a => a.status === 'sold').length;
+    return response({
+      total: accountInventory.length,
+      available,
+      sold,
+      by_type: {
+        telegram_basic: accountInventory.filter(a => a.type === 'telegram_basic' && a.status === 'available').length,
+        telegram_premium: accountInventory.filter(a => a.type === 'telegram_premium' && a.status === 'available').length,
+        instagram_basic: accountInventory.filter(a => a.type === 'instagram_basic' && a.status === 'available').length,
+        instagram_premium: accountInventory.filter(a => a.type === 'instagram_premium' && a.status === 'available').length,
+        facebook_basic: accountInventory.filter(a => a.type === 'facebook_basic' && a.status === 'available').length,
+        facebook_business: accountInventory.filter(a => a.type === 'facebook_business' && a.status === 'available').length,
+      }
+    });
+  }
+  
+  // 管理员：查看所有订单
+  if (path === '/api/admin/orders') {
+    const userId = request.headers.get('X-User-Id');
+    if (!ADMIN_IDS.includes(userId)) {
+      return response({error: 'Unauthorized'}, 401);
+    }
+    return response({orders: Object.values(orders)});
+  }
+  
+  // 管理员：确认订单并释放账号
+  if (path === '/api/admin/confirm-order') {
+    const userId = request.headers.get('X-User-Id');
+    if (!ADMIN_IDS.includes(userId)) {
+      return response({error: 'Unauthorized'}, 401);
+    }
+    if (request.method !== 'POST') {
+      return response({error: 'Method not allowed'}, 405);
+    }
+    const body = await request.json();
+    const orderId = body.order_id;
+    const order = orders[orderId];
+    if (!order) {
+      return response({error: 'Order not found'}, 404);
+    }
+    if (order.status !== 'paid') {
+      return response({error: 'Order not paid yet'}, 400);
+    }
+    // 分配账号
+    const quantity = order.quantity || 1;
+    const availableAccounts = accountInventory.filter(a => a.status === 'available');
+    if (availableAccounts.length < quantity) {
+      order.status = 'insufficient_stock';
+      return response({error: '库存不足', available: availableAccounts.length, needed: quantity});
+    }
+    // 分配账号
+    const assignedAccounts = availableAccounts.slice(0, quantity);
+    for (const acc of assignedAccounts) {
+      acc.status = 'sold';
+      acc.sold_to = orderId;
+      acc.sold_at = new Date().toISOString();
+    }
+    order.assigned_accounts = assignedAccounts.map(a => ({
+      id: a.id,
+      username: a.username,
+      password: a.password,
+      email: a.email,
+      phone: a.phone
+    }));
+    order.status = 'delivered';
+    order.delivered_at = new Date().toISOString();
+    return response({success: true, accounts: order.assigned_accounts});
+  }
+  
+  // 创建订单（支持多账号购买）
   if (path === '/api/payment/create') {
     if (request.method !== 'POST') {
       return response({error: 'Method not allowed'}, 405);
     }
     const body = await request.json();
     const orderId = 'ORD' + Date.now() + Math.random().toString(36).substr(2, 6).toUpperCase();
+    const accountType = body.account_type || 'telegram_basic';
+    const basePrice = BASE_PRICES[accountType] || BASE_PRICES.telegram_basic;
+    const quantity = body.quantity || 1;
+    const price = calculatePrice(basePrice, quantity);
+    
     const order = {
       order_id: orderId,
       user_id: body.user_id,
-      product_id: body.product_id,
-      amount: body.amount,
-      currency: body.currency,
+      account_type: accountType,
+      quantity: quantity,
+      amount_trx: price.trx,
+      amount_usdt: price.usdt,
+      currency: body.currency || 'TRX',
       payment_address: WALLET,
       status: 'pending',
       created_at: new Date().toISOString(),
-      expires_at: new Date(Date.now() + 15 * 60 * 1000).toISOString()
+      expires_at: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
+      assigned_accounts: null,
+      delivered_at: null
     };
     orders[orderId] = order;
     return response(order);
   }
   
+  // 确认支付
   if (path === '/api/payment/verify') {
     const orderId = url.searchParams.get('order_id');
     const order = orders[orderId];
     if (!order) {
       return response({error: 'Order not found'}, 404);
     }
-    return response({confirmed: true, order_id: orderId});
+    // 模拟区块链确认（实际应检查 TRON 交易）
+    order.status = 'paid';
+    order.paid_at = new Date().toISOString();
+    return response({confirmed: true, order});
   }
   
-  if (path.startsWith('/api/admin/')) {
-    const userId = request.headers.get('X-User-Id');
-    if (!userId || !['8427378474', '8733970362'].includes(userId)) {
-      return response({error: 'Unauthorized'}, 401);
-    }
-    return response({orders: Object.values(orders)});
+  // 获取用户订单
+  if (path === '/api/user/orders') {
+    const userId = url.searchParams.get('user_id');
+    const userOrders = Object.values(orders).filter(o => o.user_id === parseInt(userId));
+    return response({orders: userOrders});
   }
   
   return response({error: 'Not found'}, 404);
