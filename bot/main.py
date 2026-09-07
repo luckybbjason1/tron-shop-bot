@@ -633,6 +633,103 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await query.answer("❌ 오류가 발생했습니다. 다시 시도하세요.", show_alert=True)
 
 
+async def handle_webapp_data(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """处理 Mini App 发送的数据（支付确认）"""
+    user = update.effective_user
+    
+    # 检查消息是否包含 web_app_data
+    if not update.message or not hasattr(update.message, 'web_app_data') or not update.message.web_app_data:
+        return
+    
+    data = update.message.web_app_data
+    
+    if not data or not data.data:
+        logger.warning(f"收到空数据 from user {user.id}")
+        return
+    
+    try:
+        import json
+        payload = json.loads(data.data)
+        order_id = payload.get('orderId')
+        price = payload.get('price')
+        quantity = payload.get('quantity', 1)
+        account = payload.get('account', {})
+        
+        if not order_id:
+            logger.warning(f"订单ID为空 from user {user.id}")
+            await user.send_message("❌ 주문 정보를 찾을 수 없습니다.")
+            return
+        
+        # 检查订单是否存在
+        order_status = validator.get_order_status(order_id)
+        
+        if not order_status.get('exists'):
+            logger.warning(f"订单不存在: {order_id}")
+            await user.send_message("❌ 주문을 찾을 수 없습니다. 다시 주문해주세요.")
+            return
+        
+        if order_status.get('status') == 'delivered':
+            await user.send_message("✅ 이미 주문이 완료되었습니다.")
+            return
+        
+        # 查询区块链真实数据验证支付
+        logger.info(f"用户 {user.id} 提交订单 {order_id} 支付确认")
+        
+        # 检查支付是否已验证
+        expected_amount = order_status.get('amount', 0)
+        result = validator.check_order_payment(order_id, expected_amount, 'USDT')
+        
+        if result.get('verified'):
+            # 支付已确认，自动发货
+            logger.info(f"订单 {order_id} 支付已确认，开始发货")
+            
+            # 获取可用账号
+            accounts = get_bot_data()
+            selected_accounts = [a for a in accounts if a.get('status') == 'available'][:quantity]
+            
+            if selected_accounts:
+                # 更新账号状态
+                account_ids = [acc['id'] for acc in selected_accounts]
+                
+                # 准备发货内容
+                delivery_text = "🎉 결제 확인! 계정을 발송합니다.\n\n"
+                for i, acc in enumerate(selected_accounts, 1):
+                    delivery_text += f"\n📱 계정 {i}\n"
+                    delivery_text += f"   번호: {acc.get('phone', 'N/A')}\n"
+                    delivery_text += f"   링크: {acc.get('verify_link', 'N/A')}\n"
+                    delivery_text += f"   비밀번호: {acc.get('password', 'N/A')}\n"
+                
+                delivery_text += "\n⚠️ 주의: 계정은 본인만 사용하세요."
+                
+                # 标记已发货
+                validator.deliver_order(order_id, account_ids)
+                
+                await user.send_message(delivery_text)
+                logger.info(f"订单 {order_id} 已发货给用户 {user.id}")
+            else:
+                await user.send_message("❌ 재고가 없습니다. 관리자에게 문의하세요.")
+        else:
+            # 支付未确认，等待用户手动点击确认
+            message = result.get('message', '결제 확인 중...')
+            logger.info(f"订单 {order_id} 支付待确认: {message}")
+            
+            # 发送支付确认按钮
+            keyboard = [
+                [InlineKeyboardButton("✅ 결제 완료 (区块链确认)", callback_data=f"confirm_pay_{order_id}")]
+            ]
+            await user.send_message(
+                f"📋 주문: {order_id}\n\n"
+                f"💰 금액: {expected_amount} USDT\n\n"
+                f"⏳区块链正在确认支付...\n\n"
+                f"支付完成后点击下方按钮:",
+                reply_markup=InlineKeyboardMarkup(keyboard)
+            )
+    
+    except Exception as e:
+        logger.error(f"处理 WebApp 数据失败: {e}", exc_info=True)
+        await user.send_message("❌ 오류가 발생했습니다. 다시 시도해주세요.")
+
+
 async def main_keyboard(user_id: int) -> InlineKeyboardMarkup:
     """主键盘"""
     if is_admin(user_id):
