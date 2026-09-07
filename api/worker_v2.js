@@ -1,4 +1,4 @@
-// Cloudflare Workers - TRON Shop API v4 (with Korean Guide)
+// Cloudflare Workers - TRON Shop API v2 (with Korean Guide)
 const WALLET = "TWk75rL7Y7yS2eLZhLEpA7UeVVWpTJTih4";
 const ADMIN_IDS = ["8427378474", "8733970362"];
 
@@ -36,24 +36,96 @@ const KOREAN_GUIDE_HTML = `<!DOCTYPE html>
     <title>텔레그램 계정 구매 가이드</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: linear-gradient(135deg, #1a1a2e, #16213e); min-height: 100vh; padding: 20px; color: #fff; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #fff;
+        }
         .container { max-width: 500px; margin: 0 auto; }
-        .header { text-align: center; padding: 30px 20px; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 20px; margin-bottom: 20px; }
+        .header {
+            text-align: center;
+            padding: 30px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            margin-bottom: 20px;
+        }
         .header h1 { font-size: 24px; margin-bottom: 10px; }
-        .card { background: rgba(255,255,255,0.05); border-radius: 16px; padding: 24px; margin-bottom: 16px; border: 1px solid rgba(255,255,255,0.1); }
-        .step { display: flex; align-items: flex-start; gap: 16px; margin-bottom: 20px; }
-        .step-number { width: 36px; height: 36px; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        .card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 16px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .step {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        .step-number {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
         .step-content h3 { font-size: 16px; margin-bottom: 8px; }
         .step-content p { font-size: 14px; color: #aaa; line-height: 1.6; }
         .input-group { margin-top: 12px; }
         .input-group label { display: block; font-size: 13px; color: #888; margin-bottom: 6px; }
-        .input-group input, .input-group select { width: 100%; padding: 14px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); border-radius: 12px; color: #fff; font-size: 16px; outline: none; }
-        .btn { width: 100%; padding: 16px; background: linear-gradient(135deg, #667eea, #764ba2); border: none; border-radius: 12px; color: #fff; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 16px; }
-        .warning { background: rgba(255,159,67,0.1); border: 1px solid rgba(255,159,67,0.3); border-radius: 12px; padding: 16px; margin-top: 16px; }
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 14px 16px;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 12px;
+            color: #fff;
+            font-size: 16px;
+            outline: none;
+        }
+        .btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: none;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 16px;
+        }
+        .warning {
+            background: rgba(255,159,67,0.1);
+            border: 1px solid rgba(255,159,67,0.3);
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 16px;
+        }
         .warning h4 { color: #ff9f43; font-size: 14px; margin-bottom: 8px; }
         .warning p { color: #aaa; font-size: 13px; line-height: 1.6; }
-        .price-tag { display: inline-block; background: linear-gradient(135deg, #f093fb, #f5576c); padding: 8px 16px; border-radius: 20px; font-size: 18px; font-weight: bold; margin-top: 12px; }
-        .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
+        .price-tag {
+            display: inline-block;
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 12px;
+        }
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-size: 12px;
+        }
     </style>
 </head>
 <body>
@@ -62,6 +134,7 @@ const KOREAN_GUIDE_HTML = `<!DOCTYPE html>
             <h1>🛒 텔레그램 계정 구매</h1>
             <p>안전하고 빠른 텔레그램 계정 구매 서비스</p>
         </div>
+
         <div class="card">
             <h2>📱 1단계: 전화번호 입력</h2>
             <div class="step">
@@ -77,7 +150,7 @@ const KOREAN_GUIDE_HTML = `<!DOCTYPE html>
             </div>
             <div class="input-group" style="margin-top: 12px;">
                 <label>국가 선택</label>
-                <select id="countrySelect">
+                <select id="countrySelect" style="width:100%;padding:14px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:12px;color:#fff;">
                     <option value="+82">🇰🇷 한국 (+82)</option>
                     <option value="+1">🇺🇸 미국 (+1)</option>
                     <option value="+91">🇮🇳 인도 (+91)</option>
@@ -88,43 +161,112 @@ const KOREAN_GUIDE_HTML = `<!DOCTYPE html>
             </div>
             <button class="btn" onclick="submitPhone()">👉 인증 코드 요청하기</button>
         </div>
+
         <div class="card">
             <h2>💰 가격 정보</h2>
             <div class="price-tag">5 USDT / 계정</div>
-            <p style="margin-top: 12px; font-size: 13px; color: #888;">• 1개: 기본 가격<br>• 2개: 약 10 USDT<br>• 3개: 약 15 USDT<br><span style="color: #ff9f43;">*가격은 blockchain 확인 시 1.001~1.03x 변동</span></p>
+            <p style="margin-top: 12px; font-size: 13px; color: #888;">
+                • 1개 구매: 기본 가격<br>
+                • 2개 구매: 약 10 USDT<br>
+                • 3개 구매: 약 15 USDT<br>
+                <span style="color: #ff9f43;">*가격은 blockchain 확인 시 1.001~1.03x 변동</span>
+            </p>
         </div>
+
         <div class="card">
             <h2>📋 이용 방법</h2>
-            <div class="step"><div class="step-number">2</div><div class="step-content"><h3>전화번호 입력</h3><p>구매할 전화번호를 입력하세요.</p></div></div>
-            <div class="step"><div class="step-number">3</div><div class="step-content"><h3>인증 코드 요청</h3><p>"인증 코드 요청하기" 버튼을 클릭하세요. 링크를 클릭하여 인증을 완료하세요.</p></div></div>
-            <div class="step"><div class="step-number">4</div><div class="step-content"><h3>SMS 인증</h3><p>SMS로 전송된 인증 코드를 입력하세요. <strong>30분 이내</strong>에 입력해주세요.</p></div></div>
-            <div class="step"><div class="step-number">5</div><div class="step-content"><h3>결제</h3><p>TRX 또는 USDT(TRC20)로 결제하세요. 주소: <code style="font-size:10px;">TWk75rL7Y7yS2eLZhLEpA7UeVVWpTJTih4</code></p></div></div>
-            <div class="step"><div class="step-number">6</div><div class="step-content"><h3>계정 수령</h3><p>결제 확인 후 자동으로 텔레그램 계정 정보를 받으세요.</p></div></div>
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <h3>전화번호 입력</h3>
+                    <p>구매할 전화번호를 입력하세요.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <h3>인증 코드 요청</h3>
+                    <p>"인증 코드 요청하기" 버튼을 클릭하세요.<br>링크를 클릭하여 인증을 완료하세요.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-number">4</div>
+                <div class="step-content">
+                    <h3>SMS 인증</h3>
+                    <p>SMS로 전송된 인증 코드를 입력하세요.<br><strong>30분 이내에 입력</strong>해주세요.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-number">5</div>
+                <div class="step-content">
+                    <h3>결제</h3>
+                    <p>TRX 또는 USDT(TRC20)로 결제하세요.<br>지갑 주소: <code style="font-size:11px;word-break:break-all;">TWk75rL7Y7yS2eLZhLEpA7UeVVWpTJTih4</code></p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-number">6</div>
+                <div class="step-content">
+                    <h3>계정 수령</h3>
+                    <p>결제 확인 후 자동으로 텔레그램 계정 정보를 받으세요.</p>
+                </div>
+            </div>
         </div>
+
         <div class="warning">
             <h4>⚠️ 주의사항</h4>
-            <p>• 인증 코드는 30분 동안 유효합니다<br>• 결제는 30분 이내에 완료해주세요<br>• 계정 정보는 결제 확인 후 발송됩니다<br>• 환불은 불가능합니다</p>
+            <p>
+                • 인증 코드는 30분 동안 유효합니다<br>
+                • 결제는 30분 이내에 완료해주세요<br>
+                • 계정 정보는 결제 확인 후 발송됩니다<br>
+                • 환불은 불가능합니다
+            </p>
         </div>
+
         <div class="footer">
             <p>© 2024 TRON Shop - 텔레그램 계정 구매 서비스</p>
             <p style="margin-top: 8px;">문의: @Shop_idbot</p>
         </div>
     </div>
+
     <script>
         function submitPhone() {
             const phone = document.getElementById('phoneNumber').value;
             const country = document.getElementById('countrySelect').value;
-            if (!phone || phone.length < 7) { alert('올바른 전화번호를 입력해주세요.'); return; }
+            
+            if (!phone || phone.length < 7) {
+                alert('올바른 전화번호를 입력해주세요.');
+                return;
+            }
+            
             const fullPhone = country + phone;
             alert('✅ 전화번호가 등록되었습니다!\\n\\n' + fullPhone + '\\n\\n다음 단계로 이동합니다...');
+            
+            // 실제 구현: API 호출 후 인증 코드 요청 페이지로 이동
             window.location.href = '/purchase?phone=' + encodeURIComponent(fullPhone);
         }
     </script>
 </body>
 </html>`;
 
-// 구매 페이지 HTML
-const PURCHASE_HTML_TEMPLATE = `<!DOCTYPE html>
+async function handleRequest(request) {
+  const url = new URL(request.url);
+  const path = url.pathname;
+  
+  if (request.method === 'OPTIONS') {
+    return response({ok: true});
+  }
+  
+  // 한국어 가이드 페이지
+  if (path === '/guide' || path === '/guide.html') {
+    return new Response(KOREAN_GUIDE_HTML, {
+      headers: {'Content-Type': 'text/html; charset=utf-8'}
+    });
+  }
+  
+  // 구매 페이지
+  if (path === '/purchase' || path === '/purchase.html') {
+    const phone = url.searchParams.get('phone');
+    const purchaseHTML = `<!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
@@ -145,43 +287,33 @@ const PURCHASE_HTML_TEMPLATE = `<!DOCTYPE html>
         <h1>📱 계정 구매</h1>
         <div class="card">
             <p style="text-align:center;color:#888;">입력된 전화번호</p>
-            <div class="phone-display">${PHONE_PLACEHOLDER}</div>
+            <div class="phone-display">${phone || '번호 없음'}</div>
             <button class="btn" onclick="requestCode()">🔗 인증 코드 요청</button>
         </div>
         <div class="warning">⚠️ 인증 코드는 30분 동안 유효합니다</div>
         <a href="/guide" style="display:block;text-align:center;color:#667eea;text-decoration:none;">← 뒤로가기</a>
     </div>
     <script>
-        function requestCode() { alert('인증 코드가 요청되었습니다.\\nSMS를 확인해주세요.'); }
+        function requestCode() {
+            alert('인증 코드가 요청되었습니다.\\nSMS를 확인해주세요.');
+            // 실제 구현: API 호출
+        }
     </script>
 </body>
 </html>`;
-
-async function handleRequest(request) {
-  const url = new URL(request.url);
-  const path = url.pathname;
-  
-  if (request.method === 'OPTIONS') return response({ok: true});
-  
-  // 한국어 가이드
-  if (path === '/guide' || path === '/guide.html' || path === '/') {
-    return new Response(KOREAN_GUIDE_HTML, {
+    return new Response(purchaseHTML, {
       headers: {'Content-Type': 'text/html; charset=utf-8'}
     });
   }
   
-  // 구매 페이지
-  if (path === '/purchase' || path === '/purchase.html') {
-    const phone = url.searchParams.get('phone') || '번호 없음';
-    const html = PURCHASE_HTML_TEMPLATE.replace('${PHONE_PLACEHOLDER}', phone);
-    return new Response(html, {
-      headers: {'Content-Type': 'text/html; charset=utf-8'}
-    });
+  // API 엔드포인트들...
+  if (path === '/api/health') {
+    return response({status: 'ok'});
   }
   
-  // API endpoints
-  if (path === '/api/health') return response({status: 'ok', timestamp: new Date().toISOString()});
-  if (path === '/api/products') return response({products: []});
+  if (path === '/api/products') {
+    return response({products: []});
+  }
   
   if (path === '/api/payment/create') {
     const body = await request.json();
@@ -196,9 +328,12 @@ async function handleRequest(request) {
   
   if (path.startsWith('/api/admin/')) {
     const userId = request.headers.get('X-User-Id');
-    if (!ADMIN_IDS.includes(userId)) return response({error: 'Unauthorized'}, 401);
-    
-    if (path === '/api/admin/stats') return response({total: accountInventory.length, available: accountInventory.filter(a => a.status === 'available').length});
+    if (!ADMIN_IDS.includes(userId)) {
+      return response({error: 'Unauthorized'}, 401);
+    }
+    if (path === '/api/admin/stats') {
+      return response({total: accountInventory.length, available: accountInventory.filter(a => a.status === 'available').length});
+    }
     if (path === '/api/admin/add-account') {
       const body = await request.json();
       body.id = 'ACC' + Date.now();

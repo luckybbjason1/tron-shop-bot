@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>텔레그램 계정 구매 가이드</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #fff;
+        }
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            padding: 30px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            margin-bottom: 20px;
+        }
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 16px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .card h2 {
+            font-size: 18px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .step {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        .step-number {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+        .step-content h3 {
+            font-size: 16px;
+            margin-bottom: 8px;
+            color: #fff;
+        }
+        .step-content p {
+            font-size: 14px;
+            color: #aaa;
+            line-height: 1.6;
+        }
+        .input-group {
+            margin-top: 12px;
+        }
+        .input-group label {
+            display: block;
+            font-size: 13px;
+            color: #888;
+            margin-bottom: 6px;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 14px 16px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            color: #fff;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s;
+        }
+        .input-group input:focus {
+            border-color: #667eea;
+            background: rgba(255, 255, 255, 0.12);
+        }
+        .input-group input::placeholder {
+            color: #666;
+        }
+        .btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 16px;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+        .btn:active {
+            transform: translateY(0);
+        }
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .result-box {
+            display: none;
+            background: rgba(29, 209, 161, 0.1);
+            border: 1px solid rgba(29, 209, 161, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        .result-box.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .result-box h3 {
+            color: #1dd1a1;
+            margin-bottom: 12px;
+            font-size: 16px;
+        }
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .result-item:last-child {
+            border-bottom: none;
+        }
+        .result-label {
+            color: #888;
+            font-size: 14px;
+        }
+        .result-value {
+            color: #fff;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .copy-btn {
+            background: rgba(102, 126, 234, 0.2);
+            border: none;
+            color: #667eea;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            margin-left: 8px;
+        }
+        .copy-btn:hover {
+            background: rgba(102, 126, 234, 0.3);
+        }
+        .warning {
+            background: rgba(255, 159, 67, 0.1);
+            border: 1px solid rgba(255, 159, 67, 0.3);
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 16px;
+        }
+        .warning h4 {
+            color: #ff9f43;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+        .warning p {
+            color: #aaa;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .price-tag {
+            display: inline-block;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 12px;
+        }
+        .country-flag {
+            font-size: 20px;
+            margin-right: 6px;
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        .loading.show {
+            display: block;
+        }
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top-color: #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 12px;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .loading p {
+            color: #888;
+            font-size: 14px;
+        }
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🛒 텔레그램 계정 구매</h1>
+            <p>안전하고 빠른 텔레그램 계정 구매 서비스</p>
+        </div>
+
+        <div class="card">
+            <h2>📱 전화번호 입력</h2>
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <h3>전화번호를 입력하세요</h3>
+                    <p>아래에 전화번호를 입력하시면 자동으로 국가 코드가 설정됩니다.</p>
+                </div>
+            </div>
+            
+            <div class="input-group">
+                <label>전화번호</label>
+                <input type="tel" id="phoneNumber" placeholder="예: 01012345678" maxlength="15">
+            </div>
+
+            <div class="input-group" style="margin-top: 12px;">
+                <label>국가 선택</label>
+                <select id="countrySelect" style="width: 100%; padding: 14px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); border-radius: 12px; color: #fff; font-size: 14px; outline: none;">
+                    <option value="+82">🇰🇷 한국 (+82)</option>
+                    <option value="+1">🇺🇸 미국 (+1)</option>
+                    <option value="+91">🇮🇳 인도 (+91)</option>
+                    <option value="+84">🇻🇳 베트남 (+84)</option>
+                    <option value="+63">🇵🇭 필리핀 (+63)</option>
+                    <option value="+234">🇳🇬 나이지리아 (+234)</option>
+                    <option value="+93">🇦🇫 아프가니스탄 (+93)</option>
+                    <option value="+54">🇦🇷 아르헨티나 (+54)</option>
+                    <option value="+95">🇲🇲 미얀마 (+95)</option>
+                    <option value="+60">🇲🇾 말레이시아 (+60)</option>
+                </select>
+            </div>
+
+            <button class="btn" id="submitBtn" onclick="submitPhone()">
+                👉 인증 코드 요청하기
+            </button>
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>전화번호를 확인하는 중...</p>
+        </div>
+
+        <div class="result-box" id="resultBox">
+            <h3>✅ 인증 코드 요청 완료!</h3>
+            
+            <div class="result-item">
+                <span class="result-label">전화번호</span>
+                <span class="result-value" id="resultPhone">-</span>
+            </div>
+            
+            <div class="result-item">
+                <span class="result-label">요청 상태</span>
+                <span class="result-value" style="color: #1dd1a1;">✅ 전송 대기 중</span>
+            </div>
+
+            <div class="warning">
+                <h4>⚠️ 다음 단계를 따라주세요</h4>
+                <p>1. 링크를 클릭하여 인증 코드를 요청하세요<br>
+                   2. SMS로 인증 코드가 도착합니다<br>
+                   3. 30분 이내에 코드를 입력하세요</p>
+            </div>
+
+            <button class="btn" id="codeLinkBtn" style="margin-top: 16px;" onclick="requestCode()">
+                🔗 인증 코드 요청 링크
+            </button>
+
+            <button class="btn" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); margin-top: 10px;" onclick="checkResult()">
+                📱 결과 확인하기
+            </button>
+        </div>
+
+        <div class="card" style="margin-top: 20px;">
+            <h2>💰 가격 정보</h2>
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <h3>계정 가격</h3>
+                    <p>구매할 계정의 수량에 따라 가격이 결정됩니다.</p>
+                    <div class="price-tag">5 USDT / 계정</div>
+                    <p style="margin-top: 10px; font-size: 13px; color: #888;">
+                        • 1개 구매: 기본 가격<br>
+                        • 2개 구매: 약 10 USDT<br>
+                        • 3개 구매: 약 15 USDT<br>
+                        <span style="color: #ff9f43;">*가격은 blockchain 확인 시 1.001~1.03x 변동</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>📋 이용 방법</h2>
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <h3>구매 절차</h3>
+                    <p>
+                        1️⃣ 전화번호 입력<br>
+                        2️⃣ 인증 코드 요청<br>
+                        3️⃣ SMS 인증 코드 입력<br>
+                        4️⃣ 결제 (TRX 또는 USDT)<br>
+                        5️⃣ 계정 정보 수령
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="warning" style="background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.3);">
+            <h4 style="color: #ef4444;">⚠️ 주의사항</h4>
+            <p style="color: #ccc;">
+                • 인증 코드는 30분 동안 유효합니다<br>
+                • 결제는 30분 이내에 완료해주세요<br>
+                • 계정 정보는 결제 확인 후 발송됩니다<br>
+                • 환불은 불가능합니다
+            </p>
+        </div>
+
+        <div class="footer">
+            <p>© 2024 TRON Shop - 텔레그램 계정 구매 서비스</p>
+            <p style="margin-top: 8px;">안전하고 빠른 계정 구매</p>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'https://951951.org';
+        let currentPhone = '';
+        let currentOrderId = '';
+
+        // 전화번호 입력 처리
+        document.getElementById('phoneNumber').addEventListener('input', function(e) {
+            // 숫자만 허용
+            this.value = this.value.replace(/[^0-9]/g, '');
+        });
+
+        // 전화번호 제출
+        async function submitPhone() {
+            const phoneInput = document.getElementById('phoneNumber').value;
+            const countrySelect = document.getElementById('countrySelect').value;
+            
+            if (!phoneInput || phoneInput.length < 7) {
+                alert('올바른 전화번호를 입력해주세요.');
+                return;
+            }
+
+            const fullPhone = countrySelect + phoneInput;
+            currentPhone = fullPhone;
+
+            // 로딩 표시
+            document.getElementById('loading').classList.add('show');
+            document.getElementById('submitBtn').disabled = true;
+
+            // API 호출 (가상의 API)
+            await new Promise(resolve => setTimeout(resolve, 1500));
+
+            // 결과 표시
+            document.getElementById('loading').classList.remove('show');
+            document.getElementById('submitBtn').disabled = false;
+            document.getElementById('resultBox').classList.add('show');
+            document.getElementById('resultPhone').textContent = fullPhone;
+
+            // 스크롤
+            document.getElementById('resultBox').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // 인증 코드 요청
+        async function requestCode() {
+            // 실제 구현: API를 통해 인증 코드 요청
+            alert('인증 코드가 전송되었습니다.\nSMS를 확인해주세요.');
+            
+            // 링크 생성 (실제로는 백엔드 API 호출)
+            const mockLink = `${API_BASE}/verify?phone=${encodeURIComponent(currentPhone)}&token=${Date.now()}`;
+            
+            // 클립보드에 복사
+            navigator.clipboard.writeText(mockLink).then(() => {
+                alert('링크가 클립보드에 복사되었습니다!\n웹브라우저에서 열어주세요.');
+            }).catch(() => {
+                // 복사 실패 시 직접 알림
+                prompt('아래 링크를 복사하여 웹브라우저에서 열어주세요:', mockLink);
+            });
+        }
+
+        // 결과 확인
+        async function checkResult() {
+            // 실제 구현: 백엔드에서 결과 확인
+            alert('아직 인증 코드가 도착하지 않았습니다.\n잠시 후 다시 확인해주세요.');
+            
+            // 3초 후 자동 새로고침
+            setTimeout(() => {
+                window.location.reload();
+            }, 3000);
+        }
+
+        // 페이지 로드 시 자동 포커스
+        window.onload = function() {
+            document.getElementById('phoneNumber').focus();
+        };
+    </script>
+</body>
+</html>
