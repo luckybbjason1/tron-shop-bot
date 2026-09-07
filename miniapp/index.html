@@ -1385,40 +1385,260 @@
             letter-spacing: 2px;
         }
 
-        /* 安全区域 */
-        .safe-area-bottom {
-            padding-bottom: env(safe-area-inset-bottom, 20px);
+        /* 订单确认卡片 */
+        .order-confirm-card {
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.08), rgba(0, 243, 255, 0.08));
+            border: 1px solid rgba(0, 255, 136, 0.4);
+            border-radius: 20px;
+            padding: 24px;
+            margin: 20px 0;
+            position: relative;
+            overflow: hidden;
+            animation: order-appear 0.6s ease-out;
         }
 
-        /* 背景光晕 */
-        .bg-glow {
-            position: fixed;
-            width: 600px;
-            height: 600px;
+        @keyframes order-appear {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .order-confirm-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--neon-green), var(--neon-cyan), var(--neon-green));
+            background-size: 200% 100%;
+            animation: border-flow 2s linear infinite;
+        }
+
+        .order-account-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            margin: 16px 0;
+        }
+
+        .order-flag {
+            font-size: 40px;
+            animation: flag-bounce 2s ease-in-out infinite;
+        }
+
+        .order-details {
+            flex: 1;
+        }
+
+        .order-detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            font-size: 13px;
+        }
+
+        .order-detail-label {
+            color: var(--text-secondary);
+        }
+
+        .order-detail-value {
+            color: var(--neon-cyan);
+            font-family: 'Orbitron', monospace;
+        }
+
+        /* 购买历史 */
+        .order-history {
+            margin-top: 30px;
+        }
+
+        .history-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 14px;
+            color: var(--neon-purple);
+            letter-spacing: 3px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .history-item {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(0, 243, 255, 0.2);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            animation: history-slide 0.4s ease-out backwards;
+        }
+
+        @keyframes history-slide {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .history-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .history-order-id {
+            font-family: 'Orbitron', monospace;
+            font-size: 11px;
+            color: var(--neon-cyan);
+        }
+
+        .history-status {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .history-status.completed {
+            background: rgba(0, 255, 136, 0.2);
+            color: var(--neon-green);
+            border: 1px solid var(--neon-green);
+        }
+
+        .history-status.pending {
+            background: rgba(255, 107, 53, 0.2);
+            color: var(--neon-orange);
+            border: 1px solid var(--neon-orange);
+        }
+
+        .history-item-body {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .history-item-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .history-price {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 14px;
+            color: var(--neon-green);
+        }
+
+        /* 用户信息面板 */
+        .user-panel {
+            background: linear-gradient(135deg, rgba(176, 38, 255, 0.1), rgba(0, 243, 255, 0.1));
+            border: 1px solid rgba(176, 38, 255, 0.3);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .user-avatar {
+            width: 50px;
+            height: 50px;
             border-radius: 50%;
-            filter: blur(150px);
-            opacity: 0.15;
-            pointer-events: none;
-            z-index: 0;
+            background: linear-gradient(135deg, var(--neon-purple), var(--neon-cyan));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            box-shadow: 0 0 20px rgba(176, 38, 255, 0.5);
         }
 
-        .bg-glow.cyan {
-            background: var(--neon-cyan);
-            top: -200px;
-            left: -200px;
-            animation: glow-drift 8s ease-in-out infinite;
+        .user-info {
+            flex: 1;
         }
 
-        .bg-glow.pink {
-            background: var(--neon-pink);
-            bottom: -200px;
-            right: -200px;
-            animation: glow-drift 10s ease-in-out infinite reverse;
+        .user-name {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-primary);
         }
 
-        @keyframes glow-drift {
-            0%, 100% { transform: translate(0, 0); }
-            50% { transform: translate(50px, 30px); }
+        .user-id {
+            font-size: 11px;
+            color: var(--text-secondary);
+            font-family: 'Orbitron', monospace;
+        }
+
+        .user-stats {
+            text-align: right;
+        }
+
+        .user-order-count {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--neon-purple);
+        }
+
+        .user-order-label {
+            font-size: 10px;
+            color: var(--text-secondary);
+            letter-spacing: 1px;
+        }
+
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-secondary);
+        }
+
+        .empty-icon {
+            font-size: 60px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .empty-text {
+            font-size: 14px;
+            letter-spacing: 1px;
+        }
+
+        /* 按钮 */
+        .nav-btn {
+            display: block;
+            width: 100%;
+            padding: 16px;
+            margin-top: 16px;
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            color: var(--text-secondary);
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .nav-btn:hover {
+            border-color: var(--neon-cyan);
+            color: var(--neon-cyan);
+            background: rgba(0, 243, 255, 0.05);
+        }
+
+        /* 页面 4: 我的订单 */
+        .page4-content {
+            padding: 20px 0;
         }
     </style>
 </head>
@@ -1467,6 +1687,11 @@
             <div class="step-node" data-step="2"></div>
             <div class="step-node" data-step="3"></div>
         </div>
+
+        <!-- 主菜单按钮 -->
+        <button class="nav-btn" onclick="showMyOrders()" style="margin-bottom: 20px; border-color: var(--neon-purple); color: var(--neon-purple);">
+            📦 나의 주문 보기
+        </button>
 
         <!-- 页面 1: 商品选择 -->
         <div class="page active" id="page1">
@@ -1633,6 +1858,8 @@
         let basePrice = 5.00;
         let countdownTimer = null;
         let orderId = '';
+        let telegramUser = null;
+        let orderHistory = [];
 
         // 账户数据
         const accounts = [
@@ -1650,6 +1877,8 @@
             initDataStream();
             initFloatingShapes();
             initCountdown();
+            loadTelegramUser();
+            loadOrderHistory();
         });
 
         // 渲染账户列表
@@ -1857,12 +2086,26 @@
         function showSuccess() {
             document.getElementById('successOverlay').classList.add('show');
             
+            // 保存订单到历史
+            const price = document.getElementById('totalPrice').textContent;
+            const order = {
+                orderId: orderId,
+                account: selectedAccount,
+                quantity: quantity,
+                price: price,
+                date: new Date().toLocaleString('ko-KR'),
+                status: 'pending',
+                flag: selectedAccount.flag,
+                country: selectedAccount.country
+            };
+            saveOrder(order);
+            
             if (window.Telegram && window.Telegram.WebApp) {
                 window.Telegram.WebApp.sendData(JSON.stringify({
                     orderId: orderId,
                     account: selectedAccount,
                     quantity: quantity,
-                    price: document.getElementById('totalPrice').textContent
+                    price: price
                 }));
             }
             
@@ -1906,6 +2149,95 @@
             tg.expand();
             tg.setHeaderColor('#050508');
             tg.setBackgroundColor('#050508');
+            
+            // 获取用户信息
+            telegramUser = tg.initDataUnsafe?.user || tg.initData?.user;
+            if (telegramUser) {
+                updateUserPanel();
+            }
+        }
+
+        // 更新用户面板
+        function updateUserPanel() {
+            if (!telegramUser) return;
+            
+            const panel = document.getElementById('userPanel');
+            const avatar = document.getElementById('userAvatar');
+            const name = document.getElementById('userName');
+            const id = document.getElementById('userId');
+            const count = document.getElementById('orderCount');
+            
+            const firstName = telegramUser.first_name || 'User';
+            const lastName = telegramUser.last_name || '';
+            const userId = telegramUser.id || '000000000';
+            
+            avatar.textContent = firstName.charAt(0).toUpperCase();
+            name.textContent = `${firstName} ${lastName}`.trim();
+            id.textContent = `ID: ${userId}`;
+            count.textContent = orderHistory.length;
+            
+            panel.style.display = 'flex';
+        }
+
+        // 加载用户信息
+        function loadTelegramUser() {
+            if (window.Telegram && window.Telegram.WebApp) {
+                const tg = window.Telegram.WebApp;
+                telegramUser = tg.initDataUnsafe?.user || tg.initData?.user;
+            }
+        }
+
+        // 加载购买历史
+        function loadOrderHistory() {
+            const stored = localStorage.getItem('nebula_orders');
+            if (stored) {
+                orderHistory = JSON.parse(stored);
+            }
+        }
+
+        // 保存订单
+        function saveOrder(order) {
+            orderHistory.unshift(order);
+            localStorage.setItem('nebula_orders', JSON.stringify(orderHistory));
+            if (telegramUser) {
+                document.getElementById('orderCount').textContent = orderHistory.length;
+            }
+        }
+
+        // 显示我的订单
+        function showMyOrders() {
+            renderOrderHistory();
+            goToPage(4);
+        }
+
+        // 渲染订单历史
+        function renderOrderHistory() {
+            const container = document.getElementById('orderHistoryList');
+            const emptyState = document.getElementById('emptyHistory');
+            
+            if (orderHistory.length === 0) {
+                container.innerHTML = '';
+                emptyState.style.display = 'block';
+                return;
+            }
+            
+            emptyState.style.display = 'none';
+            container.innerHTML = orderHistory.map((order, index) => `
+                <div class="history-item" style="animation-delay: ${index * 0.1}s">
+                    <div class="history-item-header">
+                        <span class="history-order-id">${order.orderId}</span>
+                        <span class="history-status ${order.status}">${order.status === 'completed' ? '완료' : '대기중'}</span>
+                    </div>
+                    <div class="history-item-body">
+                        <span>${order.flag} ${order.country}</span>
+                        <span>${order.quantity}개</span>
+                    </div>
+                    <div class="history-item-footer">
+                        <span style="font-size: 11px; color: var(--text-secondary);">${order.date}</span>
+                        <span class="history-price">${order.price} USDT</span>
+                    </div>
+                </div>
+            `).join('');
         }
     </script>
 </body>
