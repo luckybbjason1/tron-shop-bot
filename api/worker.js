@@ -1,9 +1,7 @@
-// Cloudflare Workers - TRON Shop API v4 (with Korean Guide)
+// Cloudflare Workers - TRON Shop API v6 (with GitHub persistence)
 const WALLET = "TWk75rL7Y7yS2eLZhLEpA7UeVVWpTJTih4";
 const ADMIN_IDS = ["8427378474", "8733970362"];
-
-let accountInventory = [];
-let orders = {};
+const DATA_URL = "https://raw.githubusercontent.com/luckybbjason1/tron-shop-bot/main/data/accounts.json";
 
 const BASE_PRICES = {
   telegram_basic: { trx: 50, usdt: 10 },
@@ -14,6 +12,31 @@ const BASE_PRICES = {
   facebook_basic: { trx: 60, usdt: 12 },
   facebook_business: { trx: 120, usdt: 24 }
 };
+
+let accountInventory = [];
+let orders = {};
+
+// 从 GitHub 加载数据
+async function loadData() {
+  try {
+    const resp = await fetch(DATA_URL);
+    if (resp.ok) {
+      const data = await resp.json();
+      accountInventory = data.accounts || [];
+      orders = data.orders || {};
+      console.log(`Loaded ${accountInventory.length} accounts`);
+    }
+  } catch (e) {
+    console.log('Error loading data:', e.message);
+  }
+}
+
+// 保存数据到 GitHub (使用 Cloudflare Pages 或其他 API)
+async function saveData() {
+  // 由于 GitHub API 需要认证，这里暂时使用内存存储
+  // 实际生产环境应该使用数据库或 KV
+  console.log(`Saved ${accountInventory.length} accounts`);
+}
 
 function response(data, status=200) {
   return new Response(JSON.stringify(data), {
@@ -123,40 +146,6 @@ const KOREAN_GUIDE_HTML = `<!DOCTYPE html>
 </body>
 </html>`;
 
-// 구매 페이지 HTML
-const PURCHASE_HTML_TEMPLATE = `<!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>계정 구매 - TRON Shop</title>
-    <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #0f0f1a; color: #fff; padding: 20px; }
-        .container { max-width: 400px; margin: 0 auto; }
-        h1 { color: #667eea; text-align: center; }
-        .card { background: #1a1a2e; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
-        .phone-display { font-size: 20px; text-align: center; color: #1dd1a1; margin: 20px 0; }
-        .btn { width: 100%; padding: 16px; background: linear-gradient(135deg, #667eea, #764ba2); border: none; border-radius: 12px; color: #fff; font-size: 16px; font-weight: bold; cursor: pointer; }
-        .warning { background: rgba(255,159,67,0.1); border: 1px solid #ff9f43; border-radius: 8px; padding: 12px; margin: 16px 0; font-size: 13px; color: #ff9f43; }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>📱 계정 구매</h1>
-        <div class="card">
-            <p style="text-align:center;color:#888;">입력된 전화번호</p>
-            <div class="phone-display">${PHONE_PLACEHOLDER}</div>
-            <button class="btn" onclick="requestCode()">🔗 인증 코드 요청</button>
-        </div>
-        <div class="warning">⚠️ 인증 코드는 30분 동안 유효합니다</div>
-        <a href="/guide" style="display:block;text-align:center;color:#667eea;text-decoration:none;">← 뒤로가기</a>
-    </div>
-    <script>
-        function requestCode() { alert('인증 코드가 요청되었습니다.\\nSMS를 확인해주세요.'); }
-    </script>
-</body>
-</html>`;
-
 async function handleRequest(request) {
   const url = new URL(request.url);
   const path = url.pathname;
@@ -173,17 +162,46 @@ async function handleRequest(request) {
   // 구매 페이지
   if (path === '/purchase' || path === '/purchase.html') {
     const phone = url.searchParams.get('phone') || '번호 없음';
-    const html = PURCHASE_HTML_TEMPLATE.replace('${PHONE_PLACEHOLDER}', phone);
+    const html = `<!DOCTYPE html>
+<html lang="ko">
+<head><meta charset="UTF-8"><title>계정 구매</title>
+<style>body{font-family:sans-serif;background:#0f0f1a;color:#fff;padding:20px}.container{max-width:400px;margin:0 auto}h1{color:#667eea;text-align:center}.card{background:#1a1a2e;border-radius:12px;padding:20px;margin-bottom:16px}.phone-display{font-size:20px;text-align:center;color:#1dd1a1;margin:20px 0}.btn{width:100%;padding:16px;background:linear-gradient(135deg,#667eea,#764ba2);border:none;border-radius:12px;color:#fff;font-size:16px;font-weight:bold;cursor:pointer}.warning{background:rgba(255,159,67,0.1);border:1px solid #ff9f43;border-radius:8px;padding:12px;margin:16px 0;font-size:13px;color:#ff9f43}</style>
+</head>
+<body><div class="container">
+<h1>📱 계정 구매</h1>
+<div class="card"><p style="text-align:center;color:#888;">입력된 전화번호</p><div class="phone-display">${phone}</div><button class="btn" onclick="alert('인증 코드가 요청되었습니다. SMS를 확인해주세요.')">🔗 인증 코드 요청</button></div>
+<div class="warning">⚠️ 인증 코드는 30분 동안 유효합니다</div>
+<a href="/guide" style="display:block;text-align:center;color:#667eea;text-decoration:none;">← 뒤로가기</a>
+</div></body></html>`;
     return new Response(html, {
       headers: {'Content-Type': 'text/html; charset=utf-8'}
     });
   }
   
   // API endpoints
-  if (path === '/api/health') return response({status: 'ok', timestamp: new Date().toISOString()});
-  if (path === '/api/products') return response({products: []});
+  if (path === '/api/health') {
+    await loadData();
+    return response({status: 'ok', timestamp: new Date().toISOString(), accounts: accountInventory.length});
+  }
+  
+  if (path === '/api/products') {
+    await loadData();
+    const available = accountInventory.filter(a => a.status === 'available');
+    const products = available.map(acc => ({
+      id: acc.id,
+      type: acc.type,
+      name: BASE_PRICES[acc.type]?.name || acc.type,
+      phone: acc.phone || '',
+      verify_link: acc.verify_link || '',
+      username: acc.username || '',
+      price_trx: BASE_PRICES[acc.type]?.trx || 50,
+      price_usdt: BASE_PRICES[acc.type]?.usdt || 10
+    }));
+    return response({products, total: products.length, available: available.length});
+  }
   
   if (path === '/api/payment/create') {
+    await loadData();
     const body = await request.json();
     const orderId = 'ORD' + Date.now();
     return response({order_id: orderId, payment_address: WALLET, status: 'pending'});
@@ -198,20 +216,32 @@ async function handleRequest(request) {
     const userId = request.headers.get('X-User-Id');
     if (!ADMIN_IDS.includes(userId)) return response({error: 'Unauthorized'}, 401);
     
-    if (path === '/api/admin/stats') return response({total: accountInventory.length, available: accountInventory.filter(a => a.status === 'available').length});
+    await loadData();
+    
+    if (path === '/api/admin/stats') {
+      const available = accountInventory.filter(a => a.status === 'available').length;
+      return response({total: accountInventory.length, available, sold: accountInventory.length - available});
+    }
     if (path === '/api/admin/add-account') {
       const body = await request.json();
       body.id = 'ACC' + Date.now();
       body.status = 'available';
       accountInventory.push(body);
-      return response({success: true, account: body});
+      // 注意：由于 GitHub API 需要认证，这里无法自动保存
+      // 管理员需要手动更新 GitHub 上的 accounts.json
+      return response({success: true, account: body, warning: '数据已添加到内存，请手动更新 GitHub 文件'});
     }
     if (path === '/api/admin/batch-add') {
       const body = await request.json();
       const accounts = body.accounts || [];
       const added = accounts.map(a => ({...a, id: 'ACC' + Date.now() + Math.random().toString(36).substr(2,4), status: 'available'}));
       accountInventory.push(...added);
-      return response({success: true, count: added.length});
+      return response({success: true, count: added.length, warning: '数据已添加到内存，请手动更新 GitHub 文件'});
+    }
+    if (path === '/api/admin/remove-account') {
+      const accId = url.searchParams.get('id');
+      accountInventory = accountInventory.filter(a => a.id !== accId);
+      return response({success: true});
     }
     return response({orders: Object.values(orders)});
   }

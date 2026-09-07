@@ -117,6 +117,7 @@ TRON 지갑으로 직접 전송
         keyboard = [
             [InlineKeyboardButton("📝 단일 추가", callback_data="admin_add_single")],
             [InlineKeyboardButton("📋 대량 추가", callback_data="admin_add_batch")],
+            [InlineKeyboardButton("📦 상품 목록", callback_data="admin_show_products")],
             [InlineKeyboardButton("⬅️ 뒤로가기", callback_data="back")]
         ]
         await query.edit_message_text(
@@ -141,7 +142,7 @@ TRON 지갑으로 직접 전송
             "@testuser123\n"
             "Password123\n"
             "test@mail.com\n"
-            "+821012345678\n"
+            "+821****5678\n"
             "1년 이상 계정",
             reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("⬅️ 뒤로", callback_data="admin_add_account")]])
         )
@@ -225,24 +226,105 @@ TRON 지갑으로 직접 전송
             keyboard = [[InlineKeyboardButton("⬅️ 뒤로", callback_data="admin_inventory")]]
             await query.edit_message_text(text, reply_markup=InlineKeyboardMarkup(keyboard))
 
+    elif data == "admin_show_products":
+        if not is_admin(user_id):
+            return
+        result = api_request("/api/products")
+        products = result.get('products', [])
+        if products:
+            text = "📦 상품 목록\n\n"
+            for p in products[:20]:
+                text += f"• {p.get('phone', 'N/A')} | {p.get('type', 'N/A')} | {p.get('price_trx', 0)}TRX\n"
+            text += f"\n총 {len(products)}개 상품"
+        else:
+            text = "📦 등록된 상품이 없습니다."
+        
+        keyboard = [[InlineKeyboardButton("⬅️ 뒤로", callback_data="admin_add_account")]]
+        await query.edit_message_text(text, reply_markup=InlineKeyboardMarkup(keyboard))
+
     # ========== 商城功能 ==========
     elif data.startswith("category_"):
         cat = data.split("_", 1)[1]
-        names = {
-            "telegram": [("telegram_basic", "📱 일반 계정"), ( "telegram_premium", "⭐ 프리미엄"), ("telegram_channel", "📢 채널")],
-            "instagram": [("instagram_basic", "📷 일반 계정"), ("instagram_premium", "💎 프리미엄")],
-            "facebook": [("facebook_basic", "📘 일반 계정"), ("facebook_business", "🏢 비즈니스")]
-        }
-        items = names.get(cat, [])
+        # 获取该类别的可用账号
+        result = api_request("/api/products")
+        accounts = result.get('products', [])
+        cat_accounts = [a for a in accounts if a.get('type', '').startswith(cat)]
+        
+        if not cat_accounts:
+            await query.edit_message_text(
+                f"📱 {cat.capitalize()} 계정\n\n"
+                f"현재 재고가 없습니다.\n"
+                f"관리자에게 문의하세요.",
+                reply_markup=InlineKeyboardMarkup([
+                    [InlineKeyboardButton("⬅️ 뒤로가기", callback_data="back")]
+                ])
+            )
+            return
+        
+        # 显示账号列表，每个账号一行
+        text = f"📱 {cat.capitalize()} 계정 목록\n\n"
         keyboard = []
-        for key, name in items:
-            price = BASE_PRICES.get(key, {})
+        for acc in cat_accounts[:10]:  # 最多显示10个
+            phone = acc.get('phone', 'N/A')
+            link = acc.get('verify_link', '')
+            price = acc.get('price_trx', 50)
+            icon = "📱"
+            
+            btn_text = f"{icon} {phone} ({price}TRX)"
             keyboard.append([InlineKeyboardButton(
-                f"{price.get('icon','')} {name} ({price.get('trx','?')}TRX)",
-                callback_data=f"select_type_{key}"
+                btn_text,
+                callback_data=f"buy_acc_{acc['id']}"
             )])
+        
+        if len(cat_accounts) > 10:
+            text += f"... 총 {len(cat_accounts)}개 계정\n"
+        else:
+            text += f"총 {len(cat_accounts)}개 계정\n"
+        
         keyboard.append([InlineKeyboardButton("⬅️ 뒤로가기", callback_data="back")])
-        await query.edit_message_text(f"{cat.capitalize()} 계정 선택", reply_markup=InlineKeyboardMarkup(keyboard))
+        await query.edit_message_text(text, reply_markup=InlineKeyboardMarkup(keyboard))
+
+    elif data.startswith("buy_acc_"):
+        acc_id = data.split("_", 2)[2]
+        # 获取账号详情
+        result = api_request("/api/products")
+        accounts = result.get('products', [])
+        account = next((a for a in accounts if a.get('id') == acc_id), None)
+        
+        if not account:
+            await query.answer("계정을 찾을 수 없습니다.", show_alert=True)
+            return
+        
+        phone = account.get('phone', '')
+        link = account.get('verify_link', '')
+        username = account.get('username', '')
+        price_trx = account.get('price_trx', 50)
+        price_usdt = account.get('price_usdt', 10)
+        acc_type = account.get('type', 'telegram_basic')
+        
+        context.user_data['selected_account'] = account
+        context.user_data['selected_type'] = acc_type
+        context.user_data['quantity'] = 1
+        context.user_data['trx_price'] = price_trx
+        context.user_data['usdt_price'] = price_usdt
+        
+        text = f"📱 {account.get('name', acc_type)}\n\n"
+        text += f"📞 전화번호: {phone}\n"
+        if username:
+            text += f"👤 사용자명: @{username}\n"
+        text += f"💰 가격: {price_trx} TRX / ${price_usdt} USDT\n\n"
+        
+        if link:
+            text += f"🔗 인증 링크: {link}\n\n"
+            text += "위 링크를 클릭하여 인증 코드를 받으세요.\n"
+        
+        text += "계속 구매하시겠습니까?"
+        
+        keyboard = [
+            [InlineKeyboardButton("✅ 구매하기", callback_data=f"pay_{acc_type}_trx")],
+            [InlineKeyboardButton("⬅️ 뒤로가기", callback_data="back")]
+        ]
+        await query.edit_message_text(text, reply_markup=InlineKeyboardMarkup(keyboard))
 
     elif data.startswith("select_type_"):
         acc_type = data.split("_", 1)[1]
@@ -375,7 +457,7 @@ TRON 지갑으로 직접 전송
                 text += f"📱 텔레그램 계정 (자동 생성):\n"
                 text += f"  Username: @newuser_{order_id[:6]}\n"
                 text += f"  Password: Tg@{random.randint(1000,9999)}\n"
-                text += f"  (실제 계정 정보는 관리자가 발송합니다)\n"
+                text += f"  (실제 계정 정보는 관리자가 발송합니다)"
             
             keyboard = [[InlineKeyboardButton("🛒 계속 쇼핑", callback_data="shop")]]
             await query.edit_message_text(text, reply_markup=InlineKeyboardMarkup(keyboard))
