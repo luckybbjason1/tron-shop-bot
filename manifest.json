@@ -1,0 +1,4 @@
+{
+  "name": "tron-shop-miniapp",
+  "entrypoint": "miniapp/index.html"
+}
