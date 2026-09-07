@@ -3,38 +3,6 @@
     {
       "type": "telegram_basic",
       "username": "",
-      "phone": "+821****5678",
-      "verify_link": "https://jiema.didiapi.uk/getcode?id=test123",
-      "id": "ACC1",
-      "status": "available"
-    },
-    {
-      "type": "telegram_basic",
-      "username": "@user2",
-      "phone": "+123****7890",
-      "verify_link": "https://jiema.didiapi.uk/getcode?id=test2",
-      "id": "ACC2",
-      "status": "available"
-    },
-    {
-      "type": "telegram_premium",
-      "username": "@user3",
-      "phone": "+919****3210",
-      "verify_link": "https://jiema.didiapi.uk/getcode?id=test3",
-      "id": "ACC3",
-      "status": "available"
-    },
-    {
-      "type": "instagram_basic",
-      "username": "@insta_user",
-      "phone": "+849****4321",
-      "verify_link": "https://jiema.didiapi.uk/getcode?id=test4",
-      "id": "ACC4",
-      "status": "available"
-    },
-    {
-      "type": "telegram_basic",
-      "username": "",
       "phone": "+937****0036",
       "verify_link": "https://jiema.didiapi.uk/getcode?id=a4dcc24f-8118-4509-a8af-677a2594e761",
       "id": "ACC_93789480036",
