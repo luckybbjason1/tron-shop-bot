@@ -1,6 +1,7 @@
 """
 TRON 链上支付验证器 - 生产环境版本
 使用 TronScan API 监控链上交易
+修复: SQL注入、数据库路径、缓存限制
 """
 import os
 import json
@@ -31,13 +32,20 @@ class TronPaymentValidator:
     API_RATE_LIMIT = 10  # 每秒最大请求数
     API_COOLDOWN = 0.1   # 请求间隔（秒）
     
-    def __init__(self, db_path: str = "/data/data/com.termux/files/home/tg-shop-bot/data/payments.db"):
+    # 缓存大小限制
+    MAX_CACHE_SIZE = 100
+    
+    def __init__(self, db_path: str = None):
+        # 从环境变量读取数据库路径
+        self.db_path = db_path or os.getenv(
+            "PAYMENTS_DB_PATH",
+            "/data/data/com.termux/files/home/tg-shop-bot/data/payments.db"
+        )
         self.wallet_address = os.getenv("TRON_WALLET_ADDRESS", "")
         self.api_key = os.getenv("TRON_GRID_API_KEY", "")
         self.tronscan_key = os.getenv("TRONSCAN_API_KEY", "")
         
         # 数据库配置
-        self.db_path = db_path
         self._init_database()
         
         # 速率限制
@@ -69,6 +77,9 @@ class TronPaymentValidator:
     
     def _init_database(self):
         """初始化数据库表"""
+        # 确保数据目录存在
+        os.makedirs(os.path.dirname(self.db_path), exist_ok=True)
+        
         with self._get_db_connection() as conn:
             cursor = conn.cursor()
             
@@ -282,6 +293,10 @@ class TronPaymentValidator:
                     logger.warning(f"解析转账失败: {e}")
                     continue
             
+            # 限制缓存大小
+            if len(transfers) > self.MAX_CACHE_SIZE:
+                transfers = transfers[-self.MAX_CACHE_SIZE:]
+            
             # 更新缓存
             self._recent_transfers = transfers
             self._cache_time = now
@@ -394,7 +409,12 @@ class TronPaymentValidator:
                     }
                 
                 # 检查是否过期（30分钟）
-                created_at = datetime.fromisoformat(order['created_at'])
+                try:
+                    created_at = datetime.fromisoformat(order['created_at'])
+                except ValueError:
+                    # 兼容旧格式
+                    created_at = datetime.strptime(order['created_at'], '%Y-%m-%dT%H:%M:%S')
+                
                 if datetime.now() - created_at > timedelta(minutes=30):
                     return {
                         'verified': False,
@@ -520,7 +540,8 @@ class TronPaymentValidator:
                     'created_at': order['created_at'],
                     'verified': order['verified'],
                     'tx_id': order.get('tx_id', ''),
-                    'delivered': order['delivered']
+                    'delivered': order['delivered'],
+                    'quantity': order.get('quantity', 1)  # 新增：返回数量
                 }
         except Exception as e:
             logger.error(f"获取订单状态失败: {e}")
@@ -530,13 +551,14 @@ class TronPaymentValidator:
             }
     
     def cleanup_old_orders(self, max_age_hours: int = 2) -> int:
-        """清理过期订单"""
+        """清理过期订单 - 修复 SQL 注入"""
         try:
             with self._get_db_connection() as conn:
                 cursor = conn.execute(
                     """DELETE FROM orders 
                        WHERE status = 'pending' 
-                       AND created_at < datetime('now', '-{} hours')""".format(max_age_hours)
+                       AND created_at < datetime('now', ?)""",
+                    (f"-{max_age_hours} hours",)  # 参数化查询，防止 SQL 注入
                 )
                 deleted = cursor.rowcount
             
