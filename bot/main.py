@@ -591,6 +591,8 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             if result.get('verified'):
                 # 支付确认，自动发货
                 accounts = get_bot_data()
+                # 从订单状态获取数量
+                quantity = order_status.get('quantity', context.user_data.get('quantity', 1))
                 selected_accounts = [a for a in accounts if a.get('status') == 'available'][:quantity]
                 
                 if selected_accounts:
@@ -682,6 +684,9 @@ async def handle_webapp_data(update: Update, context: ContextTypes.DEFAULT_TYPE)
         if result.get('verified'):
             # 支付已确认，自动发货
             logger.info(f"订单 {order_id} 支付已确认，开始发货")
+            
+            # 从订单状态获取数量
+            quantity = order_status.get('quantity', quantity)
             
             # 获取可用账号
             accounts = get_bot_data()
